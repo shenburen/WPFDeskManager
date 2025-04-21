@@ -5,13 +5,13 @@
         xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
         xmlns:local="clr-namespace:WPFDeskManager"
         mc:Ignorable="d"
-        Title="六边形" Height="106" Width="106" ShowInTaskbar="False"
+        Title="Hexagon" Height="106" Width="106" ShowInTaskbar="False"
         AllowDrop="True" DragEnter="Window_DragEnter" Drop="Window_Drop"
-        Topmost="True" ResizeMode="NoResize" WindowStyle="None" AllowsTransparency="True" Background="Transparent">
+        Topmost="True" ResizeMode="NoResize" WindowStyle="None" AllowsTransparency="False" Background="Transparent">
 
     <Grid>
         <Path x:Name="HexagonPath" Fill="LightBlue" Stroke="DarkBlue" StrokeThickness="2"
               MouseLeftButtonDown="Hexagon_MouseLeftButtonDown"/>
-        <Image x:Name="Icon" Width="48" Height="48" IsHitTestVisible="False"/>
+        <Image x:Name="HexagonIcon" Width="48" Height="48" IsHitTestVisible="False"/>
     </Grid>
 </Window>

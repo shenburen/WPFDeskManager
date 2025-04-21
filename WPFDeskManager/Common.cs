@@ -12,17 +12,22 @@ namespace WPFDeskManager
         public static void CreateRoot()
         {
             BitmapImage icon = new BitmapImage(new Uri("pack://application:,,,/Images/root.png"));
-            Hexagon hexagon = new Hexagon(icon);
+            Hexagon hexagon = new Hexagon(new HexagonInfo
+            {
+                Name = "Root",
+                Icon = icon,
+                IsRoot = true,
+            });
             hexagon.Show();
         }
 
-        public static void CreateChild(IconInfo iconInfo)
+        public static void CreateChild(HexagonInfo iconInfo)
         {
-            Hexagon hexagon = new Hexagon(iconInfo.Icon);
+            Hexagon hexagon = new Hexagon(iconInfo);
             hexagon.Show();
         }
 
-        public static IconInfo? GetIcon(string path)
+        public static HexagonInfo? GetIcon(string path)
         {
             try
             {
@@ -43,7 +48,7 @@ namespace WPFDeskManager
                     targetPath = shortcut.TargetPath;
                     icon = Icon.ExtractAssociatedIcon(shortcut.TargetPath);
                 }
-                else if (ext == ".exe")
+                else
                 {
                     targetPath = path;
                     icon = Icon.ExtractAssociatedIcon(path);
@@ -56,11 +61,11 @@ namespace WPFDeskManager
 
                 BitmapSource bitmapSource = Imaging.CreateBitmapSourceFromHIcon(icon.Handle, Int32Rect.Empty, BitmapSizeOptions.FromWidthAndHeight(icon.Width, icon.Height));
 
-                return new IconInfo
+                return new HexagonInfo
                 {
                     Name = Path.GetFileNameWithoutExtension(path),
-                    TargetPath = targetPath,
                     Icon = bitmapSource,
+                    TargetPath = targetPath,
                 };
             }
             catch

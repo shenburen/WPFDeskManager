@@ -10,15 +10,19 @@ namespace WPFDeskManager
     /// </summary>
     public partial class Hexagon : Window
     {
+        private HexagonInfo IconInfo;
+
         public Hexagon()
         {
             InitializeComponent();
             CreateHexagon();
+            this.IconInfo = new HexagonInfo();
         }
 
-        public Hexagon(BitmapSource image) : this()
+        public Hexagon(HexagonInfo info) : this()
         {
-            this.Icon.Source = image;
+            this.HexagonIcon.Source = info.Icon;
+            this.IconInfo = info;
         }
 
         private void CreateHexagon()
@@ -27,7 +31,7 @@ namespace WPFDeskManager
             double height = this.Height;
             double centerX = width / 2;
             double centerY = height / 2;
-            double radius = Math.Min(width, height) / 2 - 10;
+            double radius = Math.Min(width, height) / 2 - 5;
 
             PointCollection points = new PointCollection();
 
@@ -65,6 +69,11 @@ namespace WPFDeskManager
 
         private void Window_Drop(object sender, DragEventArgs e)
         {
+            if (!this.IconInfo.IsRoot)
+            {
+                return;
+            }
+
             string[] files = (string[])e.Data.GetData(DataFormats.FileDrop);
             if (files == null)
             {
@@ -73,7 +82,7 @@ namespace WPFDeskManager
 
             foreach (string file in files)
             {
-                IconInfo iconInfo = Common.GetIcon(file);
+                HexagonInfo? iconInfo = Common.GetIcon(file);
                 if (iconInfo != null)
                 {
                     Common.CreateChild(iconInfo);
