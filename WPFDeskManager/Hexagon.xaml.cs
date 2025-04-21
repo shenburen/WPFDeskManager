@@ -21,7 +21,7 @@ namespace WPFDeskManager
             double height = this.Height;
             double centerX = width / 2;
             double centerY = height / 2;
-            double radius = Math.Min(width, height) / 2;
+            double radius = Math.Min(width, height) / 2 - 10;
 
             PointCollection points = new PointCollection();
 
@@ -52,26 +52,6 @@ namespace WPFDeskManager
             this.DragMove();
         }
 
-        protected override void OnLocationChanged(EventArgs e)
-        {
-            base.OnLocationChanged(e);
-
-            foreach (var other in WindowsManager.AllHexagons)
-            {
-                if (other == this) continue;
-
-                double dx = Math.Abs(this.Left - (other.Left + 10));
-                double dy = Math.Abs(this.Top - (other.Top + 10));
-
-                if (dx < 15 && dy < 15)
-                {
-                    this.Left = other.Left + 10;
-                    this.Top = other.Top + 10;
-                    break;
-                }
-            }
-        }
-
         private void Window_DragEnter(object sender, DragEventArgs e)
         {
 
@@ -80,15 +60,17 @@ namespace WPFDeskManager
         private void Window_Drop(object sender, DragEventArgs e)
         {
             string[] files = (string[])e.Data.GetData(DataFormats.FileDrop);
+            if (files == null)
+            {
+                return;
+            }
+
             foreach (var file in files)
             {
-                if (System.IO.Path.GetExtension(file).ToLower() == ".lnk")
+                IconInfo shortcut = Common.GetIcon(file);
+                if (shortcut != null)
                 {
-                    ShortcutInfo shortcut = Common.GetIcon(file);
-                    if (shortcut != null)
-                    {
-                        this.Icon.Source = shortcut.Icon;
-                    }
+                    this.Icon.Source = shortcut.Icon;
                 }
             }
         }

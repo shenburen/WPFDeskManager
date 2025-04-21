@@ -9,19 +9,33 @@ namespace WPFDeskManager
 {
     public class Common
     {
-        public static ShortcutInfo? GetIcon(string path)
+        public static IconInfo? GetIcon(string path)
         {
             try
             {
-                WshShell shell = new WshShell();
-                IWshShortcut shortcut = (IWshShortcut)shell.CreateShortcut(path);
+                string ext = Path.GetExtension(path).ToLower();
+                string targetPath = "";
+                Icon? icon = null;
 
-                if (!System.IO.File.Exists(path))
+                if (ext == ".lnk")
                 {
-                    return null;
+                    WshShell shell = new WshShell();
+                    IWshShortcut shortcut = (IWshShortcut)shell.CreateShortcut(path);
+
+                    if (!System.IO.File.Exists(path))
+                    {
+                        return null;
+                    }
+
+                    targetPath = shortcut.TargetPath;
+                    icon = Icon.ExtractAssociatedIcon(shortcut.TargetPath);
+                }
+                else if (ext == ".exe")
+                {
+                    targetPath = path;
+                    icon = Icon.ExtractAssociatedIcon(path);
                 }
 
-                Icon icon = Icon.ExtractAssociatedIcon(shortcut.TargetPath);
                 if (icon == null)
                 {
                     return null;
@@ -29,11 +43,10 @@ namespace WPFDeskManager
 
                 BitmapSource bitmapSource = Imaging.CreateBitmapSourceFromHIcon(icon.Handle, Int32Rect.Empty, BitmapSizeOptions.FromWidthAndHeight(icon.Width, icon.Height));
 
-                return new ShortcutInfo
+                return new IconInfo
                 {
                     Name = Path.GetFileNameWithoutExtension(path),
-                    TargetPath = shortcut.TargetPath,
-                    Description = shortcut.Description,
+                    TargetPath = targetPath,
                     Icon = bitmapSource,
                 };
             }
