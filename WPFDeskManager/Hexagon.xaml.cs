@@ -1,6 +1,7 @@
 ﻿using System.Windows;
 using System.Windows.Input;
 using System.Windows.Media;
+using System.Windows.Media.Imaging;
 
 namespace WPFDeskManager
 {
@@ -13,6 +14,11 @@ namespace WPFDeskManager
         {
             InitializeComponent();
             CreateHexagon();
+        }
+
+        public Hexagon(BitmapSource image) : this()
+        {
+            this.Icon.Source = image;
         }
 
         private void CreateHexagon()
@@ -44,7 +50,7 @@ namespace WPFDeskManager
             PathGeometry geo = new PathGeometry();
             geo.Figures.Add(figure);
 
-            HexagonPath.Data = geo;
+            this.HexagonPath.Data = geo;
         }
 
         private void Hexagon_MouseLeftButtonDown(object sender, MouseButtonEventArgs e)
@@ -65,12 +71,12 @@ namespace WPFDeskManager
                 return;
             }
 
-            foreach (var file in files)
+            foreach (string file in files)
             {
-                IconInfo shortcut = Common.GetIcon(file);
-                if (shortcut != null)
+                IconInfo iconInfo = Common.GetIcon(file);
+                if (iconInfo != null)
                 {
-                    this.Icon.Source = shortcut.Icon;
+                    Common.CreateChild(iconInfo);
                 }
             }
         }

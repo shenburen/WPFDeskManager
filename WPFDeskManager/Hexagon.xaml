@@ -12,6 +12,6 @@
     <Grid>
         <Path x:Name="HexagonPath" Fill="LightBlue" Stroke="DarkBlue" StrokeThickness="2"
               MouseLeftButtonDown="Hexagon_MouseLeftButtonDown"/>
-        <Image x:Name="Icon" Width="48" Height="48" Margin="5" IsHitTestVisible="False"/>
+        <Image x:Name="Icon" Width="48" Height="48" IsHitTestVisible="False"/>
     </Grid>
 </Window>

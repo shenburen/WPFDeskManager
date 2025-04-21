@@ -1,6 +1,4 @@
-﻿using System.Configuration;
-using System.Data;
-using System.Windows;
+﻿using System.Windows;
 
 namespace WPFDeskManager
 {
@@ -10,8 +8,7 @@ namespace WPFDeskManager
         {
             base.OnStartup(e);
 
-            Hexagon hexagon =  new Hexagon();
-            hexagon.Show();
+            Common.CreateRoot();
         }
     }
 }

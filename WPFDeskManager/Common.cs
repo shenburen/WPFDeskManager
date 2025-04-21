@@ -9,6 +9,19 @@ namespace WPFDeskManager
 {
     public class Common
     {
+        public static void CreateRoot()
+        {
+            BitmapImage icon = new BitmapImage(new Uri("pack://application:,,,/Images/root.png"));
+            Hexagon hexagon = new Hexagon(icon);
+            hexagon.Show();
+        }
+
+        public static void CreateChild(IconInfo iconInfo)
+        {
+            Hexagon hexagon = new Hexagon(iconInfo.Icon);
+            hexagon.Show();
+        }
+
         public static IconInfo? GetIcon(string path)
         {
             try
