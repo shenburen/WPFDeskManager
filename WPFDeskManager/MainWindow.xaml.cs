@@ -26,6 +26,26 @@ namespace WPFDeskManager
         {
             InitializeComponent();
             ShortcutList.ItemsSource = Shortcuts;
+
+            double radius = 100;
+            double w = Math.Sqrt(3) * radius;
+            double h = 2 * radius;
+
+            for (int row = 0; row < 2; row++)
+            {
+                for (int col = 0; col < 2; col++)
+                {
+                    double offsetX = col * w * 0.75;
+                    double offsetY = row * h + (col % 2 == 1 ? h / 2 : 0);
+
+                    var hex = new Hexagon();
+                    hex.Left = offsetX + 100; // 初始偏移
+                    hex.Top = offsetY + 100;
+                    hex.Show();
+
+                    WindowsManager.AllHexagons.Add(hex);
+                }
+            }
         }
 
         private void Window_DragEnter(object sender, DragEventArgs e)
