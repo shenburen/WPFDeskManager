@@ -8,7 +8,8 @@ namespace WPFDeskManager
         {
             base.OnStartup(e);
 
-            Common.CreateRoot();
+            // Common.CreateRoot();
+            new MainWindow().Show();
         }
     }
 }

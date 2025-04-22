@@ -5,6 +5,9 @@
     <Compile Update="Hexagon.xaml.cs">
       <SubType>Code</SubType>
     </Compile>
+    <Compile Update="MainWindow.xaml.cs">
+      <SubType>Code</SubType>
+    </Compile>
   </ItemGroup>
   <ItemGroup>
     <Page Update="Hexagon.xaml">
