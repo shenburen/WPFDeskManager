@@ -11,6 +11,9 @@ namespace WPFDeskManager
     /// </summary>
     public partial class MainWindow : Window
     {
+        private Point CurrentLoc = new Point();
+        private IconBox? CurrentPath;
+
         public MainWindow()
         {
             InitializeComponent();
@@ -19,16 +22,75 @@ namespace WPFDeskManager
         protected override void OnContentRendered(EventArgs e)
         {
             base.OnContentRendered(e);
-            this.CreateHexagon();
+            this.CreateIconBox();
         }
 
-        private void CreateHexagon()
+        protected override void OnMouseMove(MouseEventArgs e)
         {
-            double radius = 32;
+            base.OnMouseMove(e);
+            this.UpdateIconBoxLoc(e.GetPosition(this));
+        }
+
+        protected override void OnMouseUp(MouseButtonEventArgs e)
+        {
+            base.OnMouseUp(e);
+            if (this.CurrentPath != null)
+            {
+                double offsetX = this.CurrentPath.CenterX - this.CurrentLoc.X;
+                double offsetY = this.CurrentPath.CenterY - this.CurrentLoc.Y;
+
+                Point loc = e.GetPosition(this);
+                this.CurrentPath.CenterX = loc.X + offsetX;
+                this.CurrentPath.CenterY = loc.Y + offsetY;
+
+                this.CurrentPath = null;
+            }
+        }
+
+        private void CreateIconBox()
+        {
             double centerX = this.Width / 2;
             double centerY = this.Height / 2;
 
+            Path path = new Path();
+            path.Fill = new SolidColorBrush(Colors.LightBlue);
+            path.Stroke = new SolidColorBrush(Colors.DarkBlue);
+            path.StrokeThickness = 2;
+            path.Data = this.CreateHexagonGeo(centerX, centerY);
+
+            path.MouseLeftButtonDown += Path_MouseLeftButtonDown;
+            path.MouseEnter += Path_MouseEnter;
+            path.MouseLeave += Path_MouseLeave;
+
+            this.MainPanel.Children.Add(path);
+
+            IconBox iconBox = new IconBox
+            {
+                CenterX = centerX,
+                CenterY = centerY,
+                HexagonPath = path
+            };
+            IconBoxManager.IconBoxes.Add(path.GetHashCode(), iconBox);
+        }
+
+        private void UpdateIconBoxLoc(Point loc)
+        {
+            if (this.CurrentPath == null)
+            {
+                return;
+            }
+
+            double offsetX = this.CurrentPath.CenterX - this.CurrentLoc.X;
+            double offsetY = this.CurrentPath.CenterY - this.CurrentLoc.Y;
+
+            this.CurrentPath.HexagonPath.Data = this.CreateHexagonGeo(loc.X + offsetX, loc.Y + offsetY);
+        }
+
+        private PathGeometry CreateHexagonGeo(double centerX, double centerY)
+        {
             PointCollection points = new PointCollection();
+
+            double radius = 32;
             for (int i = 0; i < 6; i++)
             {
                 double angle = Math.PI / 3 * i;
@@ -46,56 +108,18 @@ namespace WPFDeskManager
             PathGeometry geo = new PathGeometry();
             geo.Figures.Add(figure);
 
-            Path path = new Path();
-            path.Fill = new SolidColorBrush(Colors.LightBlue);
-            path.Stroke = new SolidColorBrush(Colors.DarkBlue);
-            path.StrokeThickness = 2;
-            path.Data = geo;
-
-            path.MouseLeftButtonDown += Path_MouseLeftButtonDown;
-            path.MouseLeftButtonUp += Path_MouseLeftButtonUp;
-            path.MouseMove += Path_MouseMove;
-            path.MouseEnter += Path_MouseEnter;
-            path.MouseLeave += Path_MouseLeave;
-
-            this.MainPanel.Children.Add(path);
+            return geo;
         }
-
-        private bool isDragging = false;
-        private Point startPoint;
 
         private void Path_MouseLeftButtonDown(object sender, MouseButtonEventArgs e)
         {
             if (sender is Path path)
             {
-                isDragging = true;
-                startPoint = e.GetPosition(this.MainPanel);
-                path.CaptureMouse();
-            }
-        }
-
-        private void Path_MouseLeftButtonUp(object sender, MouseButtonEventArgs e)
-        {
-            if (sender is Path path)
-            {
-                isDragging = false;
-                path.ReleaseMouseCapture();
-            }
-        }
-
-        private void Path_MouseMove(object sender, MouseEventArgs e)
-        {
-            if (isDragging && sender is Path path)
-            {
-                Point currentPoint = e.GetPosition(this.MainPanel);
-                double offsetX = currentPoint.X - startPoint.X;
-                double offsetY = currentPoint.Y - startPoint.Y;
-
-                // 更新 Path 的位置
-                Canvas.SetLeft(path, Canvas.GetLeft(path) + offsetX);
-                Canvas.SetTop(path, Canvas.GetTop(path) + offsetY);
-
-                startPoint = currentPoint;
+                if (IconBoxManager.IconBoxes.TryGetValue(path.GetHashCode(), out IconBox? iconBox))
+                {
+                    this.CurrentLoc = e.GetPosition(this);
+                    this.CurrentPath = iconBox;
+                }
             }
         }
 
