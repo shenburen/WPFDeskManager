@@ -1,4 +1,5 @@
-﻿using System.Windows;
+﻿using System.Diagnostics;
+using System.Windows;
 using System.Windows.Input;
 using System.Windows.Media;
 using System.Windows.Shapes;
@@ -10,6 +11,8 @@ namespace WPFDeskManager
     /// </summary>
     public partial class MainWindow : Window
     {
+        private int Radius = 32;
+
         private Point CurrentLoc = new Point();
         private IconBox? CurrentPath;
 
@@ -21,7 +24,9 @@ namespace WPFDeskManager
         protected override void OnContentRendered(EventArgs e)
         {
             base.OnContentRendered(e);
-            this.CreateIconBox();
+            this.CreateIconBox(200, 200);
+            this.CreateIconBox(400, 400);
+            this.CreateIconBox(600, 600);
         }
 
         protected override void OnMouseMove(MouseEventArgs e)
@@ -35,23 +40,13 @@ namespace WPFDeskManager
             base.OnMouseUp(e);
             if (this.CurrentPath != null)
             {
-                double offsetX = this.CurrentPath.CenterX - this.CurrentLoc.X;
-                double offsetY = this.CurrentPath.CenterY - this.CurrentLoc.Y;
-
-                Point loc = e.GetPosition(this);
-                this.CurrentPath.CenterX = loc.X + offsetX;
-                this.CurrentPath.CenterY = loc.Y + offsetY;
-
                 this.CurrentPath = null;
                 this.MainPanel.Background = new SolidColorBrush((Color)ColorConverter.ConvertFromString("#00000000"));
             }
         }
 
-        private void CreateIconBox()
+        private void CreateIconBox(double centerX, double centerY)
         {
-            double centerX = this.Width / 2;
-            double centerY = this.Height / 2;
-
             Path path = new Path();
             path.Fill = new SolidColorBrush(Colors.LightBlue);
             path.Stroke = new SolidColorBrush(Colors.DarkBlue);
@@ -80,22 +75,27 @@ namespace WPFDeskManager
                 return;
             }
 
+            this.SnapToIconBox(out loc);
+
             double offsetX = this.CurrentPath.CenterX - this.CurrentLoc.X;
             double offsetY = this.CurrentPath.CenterY - this.CurrentLoc.Y;
 
             this.CurrentPath.HexagonPath.Data = this.CreateHexagonGeo(loc.X + offsetX, loc.Y + offsetY);
+
+            this.CurrentLoc = loc;
+            this.CurrentPath.CenterX = loc.X + offsetX;
+            this.CurrentPath.CenterY = loc.Y + offsetY;
         }
 
         private PathGeometry CreateHexagonGeo(double centerX, double centerY)
         {
             PointCollection points = new PointCollection();
 
-            double radius = 32;
             for (int i = 0; i < 6; i++)
             {
                 double angle = Math.PI / 3 * i;
-                double x = centerX + radius * Math.Cos(angle);
-                double y = centerY + radius * Math.Sin(angle);
+                double x = centerX + this.Radius * Math.Cos(angle);
+                double y = centerY + this.Radius * Math.Sin(angle);
                 points.Add(new Point(x, y));
             }
 
@@ -109,6 +109,33 @@ namespace WPFDeskManager
             geo.Figures.Add(figure);
 
             return geo;
+        }
+
+        private void SnapToIconBox(out Point point)
+        {
+            foreach (var item in IconBoxManager.IconBoxes)
+            {
+                if (item.Value == this.CurrentPath)
+                {
+                    continue;
+                }
+
+                double distance = Math.Sqrt(Math.Pow(this.CurrentPath.CenterX - item.Value.CenterX, 2) +
+                    Math.Pow(this.CurrentPath.CenterY - item.Value.CenterY, 2));
+                if (distance < (this.Radius * 2 - 10) || distance > (this.Radius * 2 + 10))
+                {
+                    continue;
+                }
+
+                double dx = this.CurrentPath.CenterX - item.Value.CenterX;
+                double dy = this.CurrentPath.CenterY - item.Value.CenterY;
+
+                double factor = this.Radius / Math.Sqrt(dx * dx + dy * dy);
+
+                point = new Point(item.Value.CenterX + dx * factor, item.Value.CenterY + dy * factor);
+
+                return;
+            }
         }
 
         private void Path_MouseLeftButtonDown(object sender, MouseButtonEventArgs e)
