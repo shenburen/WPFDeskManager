@@ -1,5 +1,4 @@
 ﻿using System.Windows;
-using System.Windows.Controls;
 using System.Windows.Input;
 using System.Windows.Media;
 using System.Windows.Shapes;
@@ -44,6 +43,7 @@ namespace WPFDeskManager
                 this.CurrentPath.CenterY = loc.Y + offsetY;
 
                 this.CurrentPath = null;
+                this.MainPanel.Background = new SolidColorBrush((Color)ColorConverter.ConvertFromString("#00000000"));
             }
         }
 
@@ -119,6 +119,7 @@ namespace WPFDeskManager
                 {
                     this.CurrentLoc = e.GetPosition(this);
                     this.CurrentPath = iconBox;
+                    this.MainPanel.Background = new SolidColorBrush((Color)ColorConverter.ConvertFromString("#19000000"));
                 }
             }
         }
