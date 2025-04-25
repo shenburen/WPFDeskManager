@@ -1,4 +1,5 @@
-﻿using System.Windows.Shapes;
+﻿using System.Windows;
+using System.Windows.Shapes;
 
 namespace WPFDeskManager
 {
@@ -9,5 +10,14 @@ namespace WPFDeskManager
         public double CenterY { get; set; }
 
         public required Path HexagonPath { get; set; }
+
+        public List<SnapPoint> SnapPoints { get; set; } = new List<SnapPoint>();
+    }
+
+    internal class SnapPoint
+    {
+        public bool IsSnapped { get; set; }
+
+        public Point Point { get; set; } = new Point();
     }
 }

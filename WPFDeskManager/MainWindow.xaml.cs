@@ -63,7 +63,8 @@ namespace WPFDeskManager
             {
                 CenterX = centerX,
                 CenterY = centerY,
-                HexagonPath = path
+                HexagonPath = path,
+                SnapPoints = this.CreateHexagonSnap(centerX, centerY),
             };
             IconBoxManager.IconBoxes.Add(path.GetHashCode(), iconBox);
         }
@@ -75,16 +76,23 @@ namespace WPFDeskManager
                 return;
             }
 
-            this.SnapToIconBox(out loc);
-
             double offsetX = this.CurrentPath.CenterX - this.CurrentLoc.X;
             double offsetY = this.CurrentPath.CenterY - this.CurrentLoc.Y;
 
-            this.CurrentPath.HexagonPath.Data = this.CreateHexagonGeo(loc.X + offsetX, loc.Y + offsetY);
-
             this.CurrentLoc = loc;
-            this.CurrentPath.CenterX = loc.X + offsetX;
-            this.CurrentPath.CenterY = loc.Y + offsetY;
+            if (this.SnapToIconBox(out loc))
+            {
+                this.CurrentPath.CenterX = loc.X;
+                this.CurrentPath.CenterY = loc.Y;
+            }
+            else
+            {
+                this.CurrentPath.CenterX = loc.X + offsetX;
+                this.CurrentPath.CenterY = loc.Y + offsetY;
+            }
+
+            this.CurrentPath.HexagonPath.Data = this.CreateHexagonGeo(this.CurrentPath.CenterX, this.CurrentPath.CenterY);
+            this.CurrentPath.SnapPoints = this.CreateHexagonSnap(this.CurrentPath.CenterX, this.CurrentPath.CenterY);
         }
 
         private PathGeometry CreateHexagonGeo(double centerX, double centerY)
@@ -111,7 +119,22 @@ namespace WPFDeskManager
             return geo;
         }
 
-        private void SnapToIconBox(out Point point)
+        private List<SnapPoint> CreateHexagonSnap(double centerX, double centerY)
+        {
+            List<SnapPoint> snapPoints = new List<SnapPoint>();
+
+            for (int i = 0; i < 6; i++)
+            {
+                double angle = Math.PI / 3 * i + Math.PI / 6;
+                double x = centerX + this.Radius * Math.Cos(Math.PI / 6) * 2 * Math.Cos(angle);
+                double y = centerY + this.Radius * Math.Cos(Math.PI / 6) * 2 * Math.Sin(angle);
+                snapPoints.Add(new SnapPoint { Point = new Point(x, y) });
+            }
+
+            return snapPoints;
+        }
+
+        private bool SnapToIconBox(out Point point)
         {
             foreach (var item in IconBoxManager.IconBoxes)
             {
@@ -120,22 +143,41 @@ namespace WPFDeskManager
                     continue;
                 }
 
-                double distance = Math.Sqrt(Math.Pow(this.CurrentPath.CenterX - item.Value.CenterX, 2) +
-                    Math.Pow(this.CurrentPath.CenterY - item.Value.CenterY, 2));
-                if (distance < (this.Radius * 2 - 10) || distance > (this.Radius * 2 + 10))
+                double snapDistance = Math.Sqrt(Math.Pow(this.CurrentPath.CenterX - item.Value.CenterX, 2) +
+                                                Math.Pow(this.CurrentPath.CenterY - item.Value.CenterY, 2));
+                if (snapDistance < (this.Radius * 2 - 10) || snapDistance > (this.Radius * 2 + 10))
                 {
                     continue;
                 }
 
-                double dx = this.CurrentPath.CenterX - item.Value.CenterX;
-                double dy = this.CurrentPath.CenterY - item.Value.CenterY;
+                bool isFinished = false;
+                double nearestDistance = double.MaxValue;
+                foreach (SnapPoint snap in item.Value.SnapPoints)
+                {
+                    if (snap.IsSnapped)
+                    {
+                        continue;
+                    }
 
-                double factor = this.Radius / Math.Sqrt(dx * dx + dy * dy);
+                    double distance = Math.Sqrt(Math.Pow(this.CurrentPath.CenterX - snap.Point.X, 2) +
+                                                Math.Pow(this.CurrentPath.CenterY - snap.Point.Y, 2));
+                    if (distance < nearestDistance)
+                    {
+                        point = snap.Point;
+                        isFinished = true;
+                        nearestDistance = distance;
+                    }
+                }
 
-                point = new Point(item.Value.CenterX + dx * factor, item.Value.CenterY + dy * factor);
+                if (!isFinished)
+                {
+                    continue;
+                }
 
-                return;
+                return true;
             }
+
+            return false;
         }
 
         private void Path_MouseLeftButtonDown(object sender, MouseButtonEventArgs e)
