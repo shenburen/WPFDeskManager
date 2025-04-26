@@ -6,6 +6,8 @@ namespace WPFDeskManager
 {
     internal class IconBox
     {
+        public string? TargetPath { get; set; }
+
         public double CenterX { get; set; }
 
         public double CenterY { get; set; }

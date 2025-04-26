@@ -9,31 +9,15 @@ namespace WPFDeskManager
 {
     public class Common
     {
-        public static void CreateRoot()
+        public static bool GetIcon(string path, out string? targetPath, out BitmapSource? iconImage)
         {
-            BitmapImage icon = new BitmapImage(new Uri("pack://application:,,,/Images/root.png"));
-            Hexagon hexagon = new Hexagon(new HexagonInfo
-            {
-                Name = "Root",
-                Icon = icon,
-                IsRoot = true,
-            });
-            hexagon.Show();
-        }
+            targetPath = null;
+            iconImage = null;
 
-        public static void CreateChild(HexagonInfo iconInfo)
-        {
-            Hexagon hexagon = new Hexagon(iconInfo);
-            hexagon.Show();
-        }
-
-        public static HexagonInfo? GetIcon(string path)
-        {
             try
             {
-                string ext = Path.GetExtension(path).ToLower();
-                string targetPath = "";
                 Icon? icon = null;
+                string ext = Path.GetExtension(path).ToLower();
 
                 if (ext == ".lnk")
                 {
@@ -42,7 +26,7 @@ namespace WPFDeskManager
 
                     if (!System.IO.File.Exists(path))
                     {
-                        return null;
+                        return false;
                     }
 
                     targetPath = shortcut.TargetPath;
@@ -56,21 +40,16 @@ namespace WPFDeskManager
 
                 if (icon == null)
                 {
-                    return null;
+                    return false;
                 }
 
-                BitmapSource bitmapSource = Imaging.CreateBitmapSourceFromHIcon(icon.Handle, Int32Rect.Empty, BitmapSizeOptions.FromWidthAndHeight(icon.Width, icon.Height));
+                iconImage = Imaging.CreateBitmapSourceFromHIcon(icon.Handle, Int32Rect.Empty, BitmapSizeOptions.FromWidthAndHeight(icon.Width, icon.Height));
 
-                return new HexagonInfo
-                {
-                    Name = Path.GetFileNameWithoutExtension(path),
-                    Icon = bitmapSource,
-                    TargetPath = targetPath,
-                };
+                return true;
             }
             catch
             {
-                return null;
+                return false;
             }
         }
     }

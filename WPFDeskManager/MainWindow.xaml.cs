@@ -49,13 +49,15 @@ namespace WPFDeskManager
         {
             Path path = new Path
             {
+                Data = this.CreateHexagonGeo(0, 0),
                 Fill = new SolidColorBrush(Colors.LightBlue),
                 Stroke = new SolidColorBrush(Colors.DarkBlue),
                 StrokeThickness = 2,
-                Data = this.CreateHexagonGeo(0, 0),
+                AllowDrop = true,
             };
             Canvas.SetTop(path, centerY);
             Canvas.SetLeft(path, centerX);
+            path.Drop += Path_Drop;
             path.MouseEnter += Path_MouseEnter;
             path.MouseLeave += Path_MouseLeave;
             path.MouseLeftButtonDown += Path_MouseLeftButtonDown;
@@ -106,22 +108,24 @@ namespace WPFDeskManager
 
         private void FinishedMoveIconBox(Point loc)
         {
-            if (this.CurrentPath != null)
+            if (this.CurrentPath == null)
             {
-                if (this.SnapToIconBox(out loc))
-                {
-                    this.CurrentPath.CenterX = loc.X;
-                    this.CurrentPath.CenterY = loc.Y;
-                }
-                Canvas.SetTop(this.CurrentPath.HexagonPath, this.CurrentPath.CenterY);
-                Canvas.SetLeft(this.CurrentPath.HexagonPath, this.CurrentPath.CenterX);
-                Canvas.SetTop(this.CurrentPath.IconImage, this.CurrentPath.CenterY - this.CurrentPath.IconImage.Height / 2);
-                Canvas.SetLeft(this.CurrentPath.IconImage, this.CurrentPath.CenterX - this.CurrentPath.IconImage.Width / 2);
-                this.CurrentPath.SnapPoints = this.CreateHexagonSnap(this.CurrentPath.CenterX, this.CurrentPath.CenterY);
-
-                this.CurrentPath = null;
-                this.MainPanel.Background = new SolidColorBrush((Color)ColorConverter.ConvertFromString("#00000000"));
+                return;
             }
+
+            if (this.SnapToIconBox(out loc))
+            {
+                this.CurrentPath.CenterX = loc.X;
+                this.CurrentPath.CenterY = loc.Y;
+            }
+            Canvas.SetTop(this.CurrentPath.HexagonPath, this.CurrentPath.CenterY);
+            Canvas.SetLeft(this.CurrentPath.HexagonPath, this.CurrentPath.CenterX);
+            Canvas.SetTop(this.CurrentPath.IconImage, this.CurrentPath.CenterY - this.CurrentPath.IconImage.Height / 2);
+            Canvas.SetLeft(this.CurrentPath.IconImage, this.CurrentPath.CenterX - this.CurrentPath.IconImage.Width / 2);
+            this.CurrentPath.SnapPoints = this.CreateHexagonSnap(this.CurrentPath.CenterX, this.CurrentPath.CenterY);
+
+            this.CurrentPath = null;
+            this.MainPanel.Background = new SolidColorBrush((Color)ColorConverter.ConvertFromString("#00000000"));
         }
 
         private PathGeometry CreateHexagonGeo(double centerX, double centerY)
@@ -194,6 +198,7 @@ namespace WPFDeskManager
 
                     double distance = Math.Sqrt(Math.Pow(this.CurrentPath.CenterX - snap.Point.X, 2) +
                                                 Math.Pow(this.CurrentPath.CenterY - snap.Point.Y, 2));
+
                     if (distance < nearestDistance)
                     {
                         point = snap.Point;
@@ -213,33 +218,73 @@ namespace WPFDeskManager
             return false;
         }
 
-        private void Path_MouseLeftButtonDown(object sender, MouseButtonEventArgs e)
+        private void Path_Drop(object sender, DragEventArgs e)
         {
-            if (sender is Path path)
+            string[] files = (string[])e.Data.GetData(DataFormats.FileDrop);
+            if (files == null)
             {
-                if (IconBoxManager.IconBoxes.TryGetValue(path.GetHashCode(), out IconBox? iconBox))
+                return;
+            }
+
+            foreach (string file in files)
+            {
+                string? targetPath;
+                BitmapSource? iconImage;
+                if (!Common.GetIcon(file, out targetPath, out iconImage))
                 {
-                    this.CurrentLoc = e.GetPosition(this);
-                    this.CurrentPath = iconBox;
-                    this.MainPanel.Background = new SolidColorBrush((Color)ColorConverter.ConvertFromString("#19000000"));
+                    continue;
                 }
+
+                if (sender is not Path path)
+                {
+                    continue;
+                }
+
+                if (!IconBoxManager.IconBoxes.TryGetValue(path.GetHashCode(), out IconBox? iconBox))
+                {
+                    continue;
+                }
+
+                iconBox.TargetPath = targetPath;
+                iconBox.IconImage.Source = iconImage;
             }
         }
 
         private void Path_MouseEnter(object sender, MouseEventArgs e)
         {
-            if (sender is Path path)
+            if (sender is not Path path)
             {
-                path.Fill = new SolidColorBrush(Colors.LightGreen);
+                return;
             }
+
+            path.Fill = new SolidColorBrush(Colors.LightGreen);
         }
 
         private void Path_MouseLeave(object sender, MouseEventArgs e)
         {
-            if (sender is Path path)
+            if (sender is not Path path)
             {
-                path.Fill = new SolidColorBrush(Colors.LightBlue);
+                return;
             }
+
+            path.Fill = new SolidColorBrush(Colors.LightBlue);
+        }
+
+        private void Path_MouseLeftButtonDown(object sender, MouseButtonEventArgs e)
+        {
+            if (sender is not Path path)
+            {
+                return;
+            }
+
+            if (!IconBoxManager.IconBoxes.TryGetValue(path.GetHashCode(), out IconBox? iconBox))
+            {
+                return;
+            }
+
+            this.CurrentLoc = e.GetPosition(this);
+            this.CurrentPath = iconBox;
+            this.MainPanel.Background = new SolidColorBrush((Color)ColorConverter.ConvertFromString("#19000000"));
         }
     }
 }
