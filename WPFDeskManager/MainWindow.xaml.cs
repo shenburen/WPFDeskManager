@@ -12,6 +12,7 @@ namespace WPFDeskManager
     public partial class MainWindow : Window
     {
         private int Radius = 32;
+        private int SnapDistance = 10;
 
         private Point CurrentLoc = new Point();
         private IconBox? CurrentPath;
@@ -38,11 +39,7 @@ namespace WPFDeskManager
         protected override void OnMouseUp(MouseButtonEventArgs e)
         {
             base.OnMouseUp(e);
-            if (this.CurrentPath != null)
-            {
-                this.CurrentPath = null;
-                this.MainPanel.Background = new SolidColorBrush((Color)ColorConverter.ConvertFromString("#00000000"));
-            }
+            this.FinishedMoveIconBox(e.GetPosition(this));
         }
 
         private void CreateIconBox(double centerX, double centerY)
@@ -80,19 +77,27 @@ namespace WPFDeskManager
             double offsetY = this.CurrentPath.CenterY - this.CurrentLoc.Y;
 
             this.CurrentLoc = loc;
-            if (this.SnapToIconBox(out loc))
-            {
-                this.CurrentPath.CenterX = loc.X;
-                this.CurrentPath.CenterY = loc.Y;
-            }
-            else
-            {
-                this.CurrentPath.CenterX = loc.X + offsetX;
-                this.CurrentPath.CenterY = loc.Y + offsetY;
-            }
+            this.CurrentPath.CenterX = loc.X + offsetX;
+            this.CurrentPath.CenterY = loc.Y + offsetY;
 
             this.CurrentPath.HexagonPath.Data = this.CreateHexagonGeo(this.CurrentPath.CenterX, this.CurrentPath.CenterY);
-            this.CurrentPath.SnapPoints = this.CreateHexagonSnap(this.CurrentPath.CenterX, this.CurrentPath.CenterY);
+        }
+
+        private void FinishedMoveIconBox(Point loc)
+        {
+            if (this.CurrentPath != null)
+            {
+                if (this.SnapToIconBox(out loc))
+                {
+                    this.CurrentPath.CenterX = loc.X;
+                    this.CurrentPath.CenterY = loc.Y;
+                }
+                this.CurrentPath.HexagonPath.Data = this.CreateHexagonGeo(this.CurrentPath.CenterX, this.CurrentPath.CenterY);
+                this.CurrentPath.SnapPoints = this.CreateHexagonSnap(this.CurrentPath.CenterX, this.CurrentPath.CenterY);
+
+                this.CurrentPath = null;
+                this.MainPanel.Background = new SolidColorBrush((Color)ColorConverter.ConvertFromString("#00000000"));
+            }
         }
 
         private PathGeometry CreateHexagonGeo(double centerX, double centerY)
@@ -145,7 +150,11 @@ namespace WPFDeskManager
 
                 double snapDistance = Math.Sqrt(Math.Pow(this.CurrentPath.CenterX - item.Value.CenterX, 2) +
                                                 Math.Pow(this.CurrentPath.CenterY - item.Value.CenterY, 2));
-                if (snapDistance < (this.Radius * 2 - 10) || snapDistance > (this.Radius * 2 + 10))
+
+                double minDistance = this.Radius * Math.Cos(Math.PI / 6) * 2 - this.SnapDistance;
+                double maxDistance = this.Radius * Math.Cos(Math.PI / 6) * 2 + this.SnapDistance;
+
+                if (snapDistance < minDistance || snapDistance > maxDistance)
                 {
                     continue;
                 }
