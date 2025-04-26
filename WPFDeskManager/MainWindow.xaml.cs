@@ -1,7 +1,9 @@
 ﻿using System.Diagnostics;
 using System.Windows;
+using System.Windows.Controls;
 using System.Windows.Input;
 using System.Windows.Media;
+using System.Windows.Media.Imaging;
 using System.Windows.Shapes;
 
 namespace WPFDeskManager
@@ -11,7 +13,8 @@ namespace WPFDeskManager
     /// </summary>
     public partial class MainWindow : Window
     {
-        private int Radius = 32;
+        private int IconSize = 32;
+        private int HexagonRadius = 32;
         private int SnapDistance = 10;
 
         private Point CurrentLoc = new Point();
@@ -25,9 +28,9 @@ namespace WPFDeskManager
         protected override void OnContentRendered(EventArgs e)
         {
             base.OnContentRendered(e);
-            this.CreateIconBox(200, 200);
-            this.CreateIconBox(400, 400);
-            this.CreateIconBox(600, 600);
+            this.CreateIconBox(400, 200);
+            this.CreateIconBox(600, 400);
+            this.CreateIconBox(800, 600);
         }
 
         protected override void OnMouseMove(MouseEventArgs e)
@@ -44,22 +47,37 @@ namespace WPFDeskManager
 
         private void CreateIconBox(double centerX, double centerY)
         {
-            Path path = new Path();
-            path.Fill = new SolidColorBrush(Colors.LightBlue);
-            path.Stroke = new SolidColorBrush(Colors.DarkBlue);
-            path.StrokeThickness = 2;
-            path.Data = this.CreateHexagonGeo(centerX, centerY);
-
-            path.MouseLeftButtonDown += Path_MouseLeftButtonDown;
+            Path path = new Path
+            {
+                Fill = new SolidColorBrush(Colors.LightBlue),
+                Stroke = new SolidColorBrush(Colors.DarkBlue),
+                StrokeThickness = 2,
+                Data = this.CreateHexagonGeo(0, 0),
+            };
+            Canvas.SetTop(path, centerY);
+            Canvas.SetLeft(path, centerX);
             path.MouseEnter += Path_MouseEnter;
             path.MouseLeave += Path_MouseLeave;
+            path.MouseLeftButtonDown += Path_MouseLeftButtonDown;
+
+            Image icon = new Image
+            {
+                Width = this.IconSize,
+                Height = this.IconSize,
+                IsHitTestVisible = false,
+                Source = new BitmapImage(new Uri("pack://application:,,,/Images/root.png")),
+            };
+            Canvas.SetTop(icon, centerY - icon.Height / 2);
+            Canvas.SetLeft(icon, centerX - icon.Width / 2);
 
             this.MainPanel.Children.Add(path);
+            this.MainPanel.Children.Add(icon);
 
             IconBox iconBox = new IconBox
             {
                 CenterX = centerX,
                 CenterY = centerY,
+                IconImage = icon,
                 HexagonPath = path,
                 SnapPoints = this.CreateHexagonSnap(centerX, centerY),
             };
@@ -80,7 +98,10 @@ namespace WPFDeskManager
             this.CurrentPath.CenterX = loc.X + offsetX;
             this.CurrentPath.CenterY = loc.Y + offsetY;
 
-            this.CurrentPath.HexagonPath.Data = this.CreateHexagonGeo(this.CurrentPath.CenterX, this.CurrentPath.CenterY);
+            Canvas.SetTop(this.CurrentPath.HexagonPath, this.CurrentPath.CenterY);
+            Canvas.SetLeft(this.CurrentPath.HexagonPath, this.CurrentPath.CenterX);
+            Canvas.SetTop(this.CurrentPath.IconImage, this.CurrentPath.CenterY - this.CurrentPath.IconImage.Height / 2);
+            Canvas.SetLeft(this.CurrentPath.IconImage, this.CurrentPath.CenterX - this.CurrentPath.IconImage.Width / 2);
         }
 
         private void FinishedMoveIconBox(Point loc)
@@ -92,7 +113,10 @@ namespace WPFDeskManager
                     this.CurrentPath.CenterX = loc.X;
                     this.CurrentPath.CenterY = loc.Y;
                 }
-                this.CurrentPath.HexagonPath.Data = this.CreateHexagonGeo(this.CurrentPath.CenterX, this.CurrentPath.CenterY);
+                Canvas.SetTop(this.CurrentPath.HexagonPath, this.CurrentPath.CenterY);
+                Canvas.SetLeft(this.CurrentPath.HexagonPath, this.CurrentPath.CenterX);
+                Canvas.SetTop(this.CurrentPath.IconImage, this.CurrentPath.CenterY - this.CurrentPath.IconImage.Height / 2);
+                Canvas.SetLeft(this.CurrentPath.IconImage, this.CurrentPath.CenterX - this.CurrentPath.IconImage.Width / 2);
                 this.CurrentPath.SnapPoints = this.CreateHexagonSnap(this.CurrentPath.CenterX, this.CurrentPath.CenterY);
 
                 this.CurrentPath = null;
@@ -107,8 +131,8 @@ namespace WPFDeskManager
             for (int i = 0; i < 6; i++)
             {
                 double angle = Math.PI / 3 * i;
-                double x = centerX + this.Radius * Math.Cos(angle);
-                double y = centerY + this.Radius * Math.Sin(angle);
+                double x = centerX + this.HexagonRadius * Math.Cos(angle);
+                double y = centerY + this.HexagonRadius * Math.Sin(angle);
                 points.Add(new Point(x, y));
             }
 
@@ -131,8 +155,8 @@ namespace WPFDeskManager
             for (int i = 0; i < 6; i++)
             {
                 double angle = Math.PI / 3 * i + Math.PI / 6;
-                double x = centerX + this.Radius * Math.Cos(Math.PI / 6) * 2 * Math.Cos(angle);
-                double y = centerY + this.Radius * Math.Cos(Math.PI / 6) * 2 * Math.Sin(angle);
+                double x = centerX + this.HexagonRadius * Math.Cos(Math.PI / 6) * 2 * Math.Cos(angle);
+                double y = centerY + this.HexagonRadius * Math.Cos(Math.PI / 6) * 2 * Math.Sin(angle);
                 snapPoints.Add(new SnapPoint { Point = new Point(x, y) });
             }
 
@@ -151,8 +175,8 @@ namespace WPFDeskManager
                 double snapDistance = Math.Sqrt(Math.Pow(this.CurrentPath.CenterX - item.Value.CenterX, 2) +
                                                 Math.Pow(this.CurrentPath.CenterY - item.Value.CenterY, 2));
 
-                double minDistance = this.Radius * Math.Cos(Math.PI / 6) * 2 - this.SnapDistance;
-                double maxDistance = this.Radius * Math.Cos(Math.PI / 6) * 2 + this.SnapDistance;
+                double minDistance = this.HexagonRadius * Math.Cos(Math.PI / 6) * 2 - this.SnapDistance;
+                double maxDistance = this.HexagonRadius * Math.Cos(Math.PI / 6) * 2 + this.SnapDistance;
 
                 if (snapDistance < minDistance || snapDistance > maxDistance)
                 {

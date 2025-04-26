@@ -1,4 +1,5 @@
 ﻿using System.Windows;
+using System.Windows.Controls;
 using System.Windows.Shapes;
 
 namespace WPFDeskManager
@@ -8,6 +9,8 @@ namespace WPFDeskManager
         public double CenterX { get; set; }
 
         public double CenterY { get; set; }
+
+        public Image IconImage { get; set; }
 
         public required Path HexagonPath { get; set; }
 
