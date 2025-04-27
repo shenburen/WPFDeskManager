@@ -62,12 +62,14 @@ namespace WPFDeskManager
             path.MouseLeave += Path_MouseLeave;
             path.MouseLeftButtonDown += Path_MouseLeftButtonDown;
 
+            BitmapImage image = Common.GetResources("pack://application:,,,/Assets/root.svg");
+
             Image icon = new Image
             {
                 Width = this.IconSize,
                 Height = this.IconSize,
                 IsHitTestVisible = false,
-                Source = new BitmapImage(new Uri("pack://application:,,,/Images/root.png")),
+                Source = image,
             };
             Canvas.SetTop(icon, centerY - icon.Height / 2);
             Canvas.SetLeft(icon, centerX - icon.Width / 2);
@@ -169,6 +171,11 @@ namespace WPFDeskManager
 
         private bool SnapToIconBox(out Point point)
         {
+            if (this.CurrentPath == null)
+            {
+                return false;
+            }
+
             foreach (var item in IconBoxManager.IconBoxes)
             {
                 if (item.Value == this.CurrentPath)
