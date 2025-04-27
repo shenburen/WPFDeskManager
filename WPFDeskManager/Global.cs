@@ -1,8 +1,10 @@
-﻿namespace WPFDeskManager
+﻿using Hardcodet.Wpf.TaskbarNotification;
+
+namespace WPFDeskManager
 {
     internal class Global
     {
-        // public static NotifyIcon? AppNotify = null;
+        public static TaskbarIcon? TrayIcon = null;
 
         public static MainWindow? MainWindow = null;
 
@@ -10,19 +12,14 @@
 
         public static void Init()
         {
-            CreateAppNotify();
+            TrayManager.CreateTrayIcon();
             MainWindow = new MainWindow();
             MainWindow.Show();
         }
 
         public static void Dispose()
         {
-
-        }
-
-        public static void CreateAppNotify()
-        {
-
+            TrayIcon?.Dispose();
         }
     }
 }

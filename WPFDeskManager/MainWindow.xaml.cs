@@ -62,7 +62,7 @@ namespace WPFDeskManager
             path.MouseLeave += Path_MouseLeave;
             path.MouseLeftButtonDown += Path_MouseLeftButtonDown;
 
-            BitmapImage image = Common.GetResources("pack://application:,,,/Assets/root.svg");
+            BitmapImage image = Common.GetSvgFromResources("pack://application:,,,/Assets/root.svg");
 
             Image icon = new Image
             {
@@ -237,7 +237,7 @@ namespace WPFDeskManager
             {
                 string? targetPath;
                 BitmapSource? iconImage;
-                if (!Common.GetIcon(file, out targetPath, out iconImage))
+                if (!Common.GetIconFromFiles(file, out targetPath, out iconImage))
                 {
                     continue;
                 }

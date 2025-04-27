@@ -19,7 +19,7 @@ namespace WPFDeskManager
         /// <param name="targetPath">目标实际应用的路径</param>
         /// <param name="iconImage">获取的图标</param>
         /// <returns>执行是否成功</returns>
-        public static bool GetIcon(string path, out string? targetPath, out BitmapSource? iconImage)
+        public static bool GetIconFromFiles(string path, out string? targetPath, out BitmapSource? iconImage)
         {
             targetPath = null;
             iconImage = null;
@@ -68,7 +68,7 @@ namespace WPFDeskManager
         /// </summary>
         /// <param name="path">文件路径</param>
         /// <returns>图标</returns>
-        public static BitmapImage GetResources(string path)
+        public static BitmapImage GetSvgFromResources(string path)
         {
             BitmapImage bitmap = new BitmapImage();
 
