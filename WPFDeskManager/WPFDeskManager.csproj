@@ -26,9 +26,11 @@
   </ItemGroup>
 
   <ItemGroup>
-    <Resource Include="Assets\root.svg">
-      <CopyToOutputDirectory></CopyToOutputDirectory>
-    </Resource>
+    <Resource Include="Assets\logo.ico" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <Resource Include="Assets\root.svg" />
   </ItemGroup>
 
 </Project>

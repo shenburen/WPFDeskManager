@@ -12,7 +12,7 @@ namespace WPFDeskManager
 
         public double CenterY { get; set; }
 
-        public Image IconImage { get; set; }
+        public required Image IconImage { get; set; }
 
         public required Path HexagonPath { get; set; }
 

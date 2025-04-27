@@ -85,7 +85,7 @@ namespace WPFDeskManager
                 HexagonPath = path,
                 SnapPoints = this.CreateHexagonSnap(centerX, centerY),
             };
-            IconBoxManager.IconBoxes.Add(path.GetHashCode(), iconBox);
+            Global.IconBoxes.Add(path.GetHashCode(), iconBox);
         }
 
         private void UpdateIconBoxLoc(Point loc)
@@ -176,7 +176,7 @@ namespace WPFDeskManager
                 return false;
             }
 
-            foreach (var item in IconBoxManager.IconBoxes)
+            foreach (var item in Global.IconBoxes)
             {
                 if (item.Value == this.CurrentPath)
                 {
@@ -247,7 +247,7 @@ namespace WPFDeskManager
                     continue;
                 }
 
-                if (!IconBoxManager.IconBoxes.TryGetValue(path.GetHashCode(), out IconBox? iconBox))
+                if (!Global.IconBoxes.TryGetValue(path.GetHashCode(), out IconBox? iconBox))
                 {
                     continue;
                 }
@@ -284,7 +284,7 @@ namespace WPFDeskManager
                 return;
             }
 
-            if (!IconBoxManager.IconBoxes.TryGetValue(path.GetHashCode(), out IconBox? iconBox))
+            if (!Global.IconBoxes.TryGetValue(path.GetHashCode(), out IconBox? iconBox))
             {
                 return;
             }

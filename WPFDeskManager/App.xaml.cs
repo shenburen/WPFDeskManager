@@ -7,8 +7,13 @@ namespace WPFDeskManager
         protected override void OnStartup(StartupEventArgs e)
         {
             base.OnStartup(e);
+            Global.Init();
+        }
 
-            new MainWindow().Show();
+        protected override void OnExit(ExitEventArgs e)
+        {
+            Global.Dispose();
+            base.OnExit(e);
         }
     }
 }
