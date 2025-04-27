@@ -12,7 +12,7 @@ namespace WPFDeskManager
 
         public static void Init()
         {
-            TrayManager.CreateTrayIcon();
+            Tray.CreateTrayIcon();
             MainWindow = new MainWindow();
             MainWindow.Show();
         }

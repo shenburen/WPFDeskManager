@@ -5,7 +5,7 @@ using System.Windows.Resources;
 
 namespace WPFDeskManager
 {
-    internal class TrayManager
+    internal class Tray
     {
         public static void CreateTrayIcon()
         {
