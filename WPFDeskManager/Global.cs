@@ -1,6 +1,4 @@
-﻿using Hardcodet.Wpf.TaskbarNotification;
-
-namespace WPFDeskManager
+﻿namespace WPFDeskManager
 {
     internal class Global
     {
@@ -19,7 +17,7 @@ namespace WPFDeskManager
 
         public static void Dispose()
         {
-            Tray?.TrayIcon?.Dispose();
+
         }
     }
 }
