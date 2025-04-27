@@ -4,7 +4,7 @@ namespace WPFDeskManager
 {
     internal class Global
     {
-        public static TaskbarIcon? TrayIcon = null;
+        public static Tray? Tray = null;
 
         public static MainWindow? MainWindow = null;
 
@@ -12,14 +12,14 @@ namespace WPFDeskManager
 
         public static void Init()
         {
-            Tray.CreateTrayIcon();
+            Tray = new Tray();
             MainWindow = new MainWindow();
             MainWindow.Show();
         }
 
         public static void Dispose()
         {
-            TrayIcon?.Dispose();
+            Tray?.TrayIcon?.Dispose();
         }
     }
 }
