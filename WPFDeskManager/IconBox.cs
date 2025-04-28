@@ -219,30 +219,33 @@ namespace WPFDeskManager
             MenuItem switchIcon = this.Pop.AddMenuItem("切换显示图标");
             this.Pop.AddMenuItem(switchIcon, "金牛座", (object sender, RoutedEventArgs e) =>
             {
-
+                Path? path = this.Pop.GetPlacementTarget(sender);
+                if(path == null)
+                {
+                    return;
+                }
+                if (!Global.IconBoxes.TryGetValue(path.GetHashCode(), out IconBox? iconBox))
+                {
+                    return;
+                }
+                iconBox.IconImage.Source = Common.GetSvgFromResources("pack://application:,,,/Assets/icon-金牛座.svg");
             });
             this.Pop.AddMenuItem(switchIcon, "双鱼座", (object sender, RoutedEventArgs e) =>
             {
-
+                Path? path = this.Pop.GetPlacementTarget(sender);
+                if (path == null)
+                {
+                    return;
+                }
+                if (!Global.IconBoxes.TryGetValue(path.GetHashCode(), out IconBox? iconBox))
+                {
+                    return;
+                }
+                iconBox.IconImage.Source = Common.GetSvgFromResources("pack://application:,,,/Assets/icon-双鱼座.svg");
             });
-
             this.Pop.AddMenuItem("添加", (object sender, RoutedEventArgs e) =>
             {
-                MenuItem? menuItem = sender as MenuItem;
-                if (menuItem == null)
-                {
-                    return;
-                }
-                ContextMenu? contextMenu = menuItem?.Parent as ContextMenu;
-                if (contextMenu == null)
-                {
-                    return;
-                }
-                if (contextMenu.PlacementTarget is not Path path)
-                {
-                    return;
-                }
-                MessageBox.Show(path.GetHashCode().ToString());
+
             });
             this.Pop.AddMenuItem("删除", (object sender, RoutedEventArgs e) =>
             {

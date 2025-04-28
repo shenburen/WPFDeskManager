@@ -2,6 +2,7 @@
 using System.Windows;
 using System.Windows.Media;
 using System.Windows.Controls.Primitives;
+using System.Windows.Shapes;
 
 namespace WPFDeskManager
 {
@@ -46,6 +47,39 @@ namespace WPFDeskManager
             MenuItem item = this.CreateMenuItem(text, onClick);
             menuItem.Items.Add(item);
             return item;
+        }
+
+        /// <summary>
+        /// 获取菜单的触发源
+        /// </summary>
+        /// <param name="sender"></param>
+        /// <returns>触发源</returns>
+        public Path? GetPlacementTarget(object sender)
+        {
+            MenuItem? menuItem2 = sender as MenuItem;
+            if (menuItem2 == null)
+            {
+                return null;
+            }
+
+            MenuItem? menuItem1 = menuItem2?.Parent as MenuItem;
+            if (menuItem1 == null)
+            {
+                return null;
+            }
+
+            ContextMenu? contextMenu = menuItem1?.Parent as ContextMenu;
+            if (contextMenu == null)
+            {
+                return null;
+            }
+
+            if (contextMenu.PlacementTarget is not Path path)
+            {
+                return null;
+            }
+
+            return path;
         }
 
         /// <summary>
