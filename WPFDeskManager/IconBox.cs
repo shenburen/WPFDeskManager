@@ -62,6 +62,11 @@ namespace WPFDeskManager
         public Canvas MainPanel;
 
         /// <summary>
+        /// 菜单
+        /// </summary>
+        public PopMenu Pop = new PopMenu();
+
+        /// <summary>
         /// 构造函数
         /// </summary>
         /// <param name="_canvas">主容器</param>
@@ -116,6 +121,7 @@ namespace WPFDeskManager
             Global.IconBoxes.Add(this.Hexagon.GetHashCode(), this);
 
             this.CreateHexagonSnap();
+            this.CreateContextMenu();
         }
 
         /// <summary>
@@ -201,6 +207,40 @@ namespace WPFDeskManager
             }
 
             this.SnapPoints = snapPoints;
+        }
+
+        /// <summary>
+        /// 创建菜单
+        /// </summary>
+        private void CreateContextMenu()
+        {
+            this.Pop = new PopMenu();
+
+            this.Pop.AddMenuItem("添加", (object sender, RoutedEventArgs e) =>
+            {
+                MenuItem? menuItem = sender as MenuItem;
+                if (menuItem == null)
+                {
+                    return;
+                }
+                ContextMenu? contextMenu = menuItem?.Parent as ContextMenu;
+                if (contextMenu == null)
+                {
+                    return;
+                }
+                if (contextMenu.PlacementTarget is not Path path)
+                {
+                    return;
+                }
+                MessageBox.Show(path.GetHashCode().ToString());
+            });
+            this.Pop.AddMenuItem("删除", (object sender, RoutedEventArgs e) =>
+            {
+
+            });
+
+            this.Hexagon.ContextMenu = this.Pop.Menu;
+            this.Pop.Menu.PlacementTarget = this.Hexagon;
         }
 
         /// <summary>
