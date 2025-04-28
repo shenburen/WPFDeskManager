@@ -10,7 +10,7 @@ using System.Windows.Resources;
 
 namespace WPFDeskManager
 {
-    public class Common
+    internal class Common
     {
         /// <summary>
         /// 从快捷方式和文件中获取图标
