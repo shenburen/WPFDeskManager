@@ -38,11 +38,19 @@
   </ItemGroup>
 
   <ItemGroup>
+    <Resource Include="Assets\icon-双子座.svg" />
+    <Resource Include="Assets\icon-双鱼座.svg" />
+    <Resource Include="Assets\icon-处女座.svg" />
+    <Resource Include="Assets\icon-天秤座.svg" />
+    <Resource Include="Assets\icon-天蝎座.svg" />
+    <Resource Include="Assets\icon-射手座.svg" />
+    <Resource Include="Assets\icon-巨蟹座.svg" />
+    <Resource Include="Assets\icon-摩羯座.svg" />
+    <Resource Include="Assets\icon-水瓶座.svg" />
+    <Resource Include="Assets\icon-牡羊座.svg" />
+    <Resource Include="Assets\icon-狮子座.svg" />
+    <Resource Include="Assets\icon-金牛座.svg" />
     <Resource Include="Assets\logo.ico" />
-  </ItemGroup>
-
-  <ItemGroup>
-    <Resource Include="Assets\root.svg" />
   </ItemGroup>
 
 </Project>

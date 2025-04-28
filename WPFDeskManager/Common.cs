@@ -9,7 +9,7 @@ using System.Windows.Media.Imaging;
 using System.Windows.Resources;
 
 namespace WPFDeskManager
-{
+{   
     internal class Common
     {
         /// <summary>

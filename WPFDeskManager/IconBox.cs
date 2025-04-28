@@ -112,7 +112,7 @@ namespace WPFDeskManager
                 Width = this.IconSize,
                 Height = this.IconSize,
                 IsHitTestVisible = false,
-                Source = Common.GetSvgFromResources("pack://application:,,,/Assets/root.svg"),
+                Source = Common.GetSvgFromResources("pack://application:,,,/Assets/icon-金牛座.svg"),
             };
             Canvas.SetTop(this.IconImage, this.CenterY - this.IconImage.Height / 2);
             Canvas.SetLeft(this.IconImage, this.CenterX - this.IconImage.Width / 2);
