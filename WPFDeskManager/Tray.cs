@@ -16,15 +16,15 @@ namespace WPFDeskManager
             ContextMenu contextMenu = new ContextMenu();
 
             MenuItem hideDesktopIcon = new MenuItem { Header = "隐藏桌面图标" };
-            hideDesktopIcon.Click += (s, e) => { MessageBox.Show("隐藏桌面图标"); };
+            hideDesktopIcon.Click += HideDesktopEvent;
             contextMenu.Items.Add(hideDesktopIcon);
 
             MenuItem showDesktopIcon = new MenuItem { Header = "显示桌面图标" };
-            showDesktopIcon.Click += (s, e) => { MessageBox.Show("显示桌面图标"); };
+            showDesktopIcon.Click += ShowDesktopEvent;
             contextMenu.Items.Add(showDesktopIcon);
 
             MenuItem exitApplication = new MenuItem { Header = "退出" };
-            exitApplication.Click += (s, e) => { MessageBox.Show("退出"); };
+            exitApplication.Click += ExitApplication;
             contextMenu.Items.Add(exitApplication);
 
             StreamResourceInfo streamInfo = Application.GetResourceStream(new Uri("pack://application:,,,/Assets/logo.ico"));
@@ -35,6 +35,21 @@ namespace WPFDeskManager
                 ToolTipText = "桌面整理工具",
                 ContextMenu = contextMenu,
             };
+        }
+
+        private void HideDesktopEvent(object sender, RoutedEventArgs e)
+        {
+
+        }
+
+        private void ShowDesktopEvent(object sender, RoutedEventArgs e)
+        {
+
+        }
+
+        private void ExitApplication(object sender, RoutedEventArgs e)
+        {
+            Application.Current.Shutdown();
         }
     }
 }

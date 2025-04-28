@@ -17,7 +17,7 @@
 
         public static void Dispose()
         {
-
+            Tray?.TrayIcon.Dispose();
         }
     }
 }
