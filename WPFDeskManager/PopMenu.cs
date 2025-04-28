@@ -1,6 +1,7 @@
 ﻿using System.Windows.Controls;
 using System.Windows;
 using System.Windows.Media;
+using System.Windows.Controls.Primitives;
 
 namespace WPFDeskManager
 {
@@ -21,11 +22,39 @@ namespace WPFDeskManager
         }
 
         /// <summary>
-        /// 添加菜单
+        /// 添加菜单项
         /// </summary>
         /// <param name="text">名称</param>
         /// <param name="onClick">点击事件</param>
-        public void AddMenuItem(string text, Action<object, RoutedEventArgs> onClick)
+        /// <returns>菜单项</returns>
+        public MenuItem AddMenuItem(string text, Action<object, RoutedEventArgs>? onClick = null)
+        {
+            MenuItem item = this.CreateMenuItem(text, onClick);
+            this.Menu.Items.Add(item);
+            return item;
+        }
+
+        /// <summary>
+        /// 添加子菜单项
+        /// </summary>
+        /// <param name="menuItem">被添加的菜单项</param>
+        /// <param name="text">名称</param>
+        /// <param name="onClick">点击事件</param>
+        /// <returns>菜单项</returns>
+        public MenuItem AddMenuItem(MenuItem menuItem, string text, Action<object, RoutedEventArgs>? onClick = null)
+        {
+            MenuItem item = this.CreateMenuItem(text, onClick);
+            menuItem.Items.Add(item);
+            return item;
+        }
+
+        /// <summary>
+        /// 创建菜单项
+        /// </summary>
+        /// <param name="text">名称</param>
+        /// <param name="onClick">点击事件</param>
+        /// <returns>菜单项</returns>
+        private MenuItem CreateMenuItem(string text, Action<object, RoutedEventArgs>? onClick = null)
         {
             MenuItem item = new MenuItem
             {
@@ -49,10 +78,13 @@ namespace WPFDeskManager
 
             item.Click += (s, e) =>
             {
-                onClick?.Invoke(s, e);
+                if (onClick != null)
+                {
+                    onClick?.Invoke(s, e);
+                }
             };
 
-            this.Menu.Items.Add(item);
+            return item;
         }
 
         /// <summary>
@@ -93,8 +125,28 @@ namespace WPFDeskManager
             FrameworkElementFactory border = new FrameworkElementFactory(typeof(Border));
             border.AppendChild(contentPresenter);
 
+            FrameworkElementFactory itemsPresenter = new FrameworkElementFactory(typeof(ItemsPresenter));
+
+            FrameworkElementFactory itemsBorder = new FrameworkElementFactory(typeof(Border));
+            itemsBorder.SetValue(Border.PaddingProperty, new Thickness(6));
+            itemsBorder.SetValue(Border.BackgroundProperty, new SolidColorBrush(Color.FromArgb(220, 0, 0, 0)));
+            itemsBorder.SetValue(Border.BorderBrushProperty, new SolidColorBrush(Color.FromRgb(68, 68, 68)));
+            itemsBorder.SetValue(Border.BorderThicknessProperty, new Thickness(2));
+            itemsBorder.SetValue(Border.CornerRadiusProperty, new CornerRadius(8));
+            itemsBorder.AppendChild(itemsPresenter);
+
+            FrameworkElementFactory popup = new FrameworkElementFactory(typeof(Popup));
+            popup.SetValue(Popup.IsOpenProperty, new TemplateBindingExtension(MenuItem.IsSubmenuOpenProperty));
+            popup.SetValue(Popup.PlacementProperty, PlacementMode.Right);
+            popup.SetValue(Popup.AllowsTransparencyProperty, true);
+            popup.AppendChild(itemsBorder);
+
+            FrameworkElementFactory grid = new FrameworkElementFactory(typeof(Grid));
+            grid.AppendChild(border);
+            grid.AppendChild(popup);
+
             ControlTemplate template = new ControlTemplate(typeof(MenuItem));
-            template.VisualTree = border;
+            template.VisualTree = grid;
 
             item.Template = template;
         }

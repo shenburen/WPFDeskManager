@@ -1,9 +1,6 @@
 ﻿using Hardcodet.Wpf.TaskbarNotification;
 using System.Windows;
-using System.Windows.Controls;
-using System.Windows.Media;
 using System.Windows.Resources;
-using static System.Windows.Forms.VisualStyles.VisualStyleElement;
 
 namespace WPFDeskManager
 {

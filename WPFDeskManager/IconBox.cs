@@ -216,6 +216,16 @@ namespace WPFDeskManager
         {
             this.Pop = new PopMenu();
 
+            MenuItem switchIcon = this.Pop.AddMenuItem("切换显示图标");
+            this.Pop.AddMenuItem(switchIcon, "金牛座", (object sender, RoutedEventArgs e) =>
+            {
+
+            });
+            this.Pop.AddMenuItem(switchIcon, "双鱼座", (object sender, RoutedEventArgs e) =>
+            {
+
+            });
+
             this.Pop.AddMenuItem("添加", (object sender, RoutedEventArgs e) =>
             {
                 MenuItem? menuItem = sender as MenuItem;
