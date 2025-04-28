@@ -11,30 +11,25 @@ namespace WPFDeskManager
     {
         public TaskbarIcon TrayIcon;
 
+        public PopMenu Pop;
+
         public Tray()
         {
-            ContextMenu contextMenu = new ContextMenu();
-
-            MenuItem hideDesktopIcon = new MenuItem { Header = "隐藏桌面图标" };
-            hideDesktopIcon.Click += HideDesktopEvent;
-            contextMenu.Items.Add(hideDesktopIcon);
-
-            MenuItem showDesktopIcon = new MenuItem { Header = "显示桌面图标" };
-            showDesktopIcon.Click += ShowDesktopEvent;
-            contextMenu.Items.Add(showDesktopIcon);
-
-            MenuItem exitApplication = new MenuItem { Header = "退出" };
-            exitApplication.Click += ExitApplication;
-            contextMenu.Items.Add(exitApplication);
-
             StreamResourceInfo streamInfo = Application.GetResourceStream(new Uri("pack://application:,,,/Assets/logo.ico"));
             this.TrayIcon = new TaskbarIcon
             {
                 Icon = new System.Drawing.Icon(streamInfo.Stream),
                 Visibility = Visibility.Visible,
                 ToolTipText = "桌面整理工具",
-                ContextMenu = contextMenu,
             };
+
+            this.Pop = new PopMenu();
+
+            this.Pop.AddMenuItem("隐藏桌面图标", this.HideDesktopEvent);
+            this.Pop.AddMenuItem("显示桌面图标", this.ShowDesktopEvent);
+            this.Pop.AddMenuItem("退出", this.ExitApplication);
+
+            this.TrayIcon.ContextMenu = this.Pop.Menu;
         }
 
         private void HideDesktopEvent(object sender, RoutedEventArgs e)

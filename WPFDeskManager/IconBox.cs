@@ -49,7 +49,7 @@ namespace WPFDeskManager
         /// <summary>
         /// 六边形
         /// </summary>
-        public Path HexagonPath;
+        public Path Hexagon;
 
         /// <summary>
         /// 吸附店
@@ -75,7 +75,7 @@ namespace WPFDeskManager
             this.CenterY = _centerY;
 
             // 六边形
-            this.HexagonPath = new Path
+            this.Hexagon = new Path
             {
                 Data = this.CreateHexagonGeo(),
                 Fill = new SolidColorBrush(Color.FromArgb(180, 0, 0, 0)),
@@ -90,16 +90,16 @@ namespace WPFDeskManager
                 StrokeThickness = 2,
                 AllowDrop = true,
             };
-            Canvas.SetTop(this.HexagonPath, this.CenterY);
-            Canvas.SetLeft(this.HexagonPath, this.CenterX);
-            this.HexagonPath.Drop += Path_Drop;
-            this.HexagonPath.MouseEnter += Path_MouseEnter;
-            this.HexagonPath.MouseLeave += Path_MouseLeave;
-            this.HexagonPath.MouseLeftButtonDown += (s, e) =>
+            Canvas.SetTop(this.Hexagon, this.CenterY);
+            Canvas.SetLeft(this.Hexagon, this.CenterX);
+            this.Hexagon.Drop += Path_Drop;
+            this.Hexagon.MouseEnter += Path_MouseEnter;
+            this.Hexagon.MouseLeave += Path_MouseLeave;
+            this.Hexagon.MouseLeftButtonDown += (s, e) =>
             {
                 mouseLeftButtonDown.Invoke(s, e);
             };
-            this.MainPanel.Children.Add(this.HexagonPath);
+            this.MainPanel.Children.Add(this.Hexagon);
 
             // 图标
             this.IconImage = new Image
@@ -113,7 +113,7 @@ namespace WPFDeskManager
             Canvas.SetLeft(this.IconImage, this.CenterX - this.IconImage.Width / 2);
             this.MainPanel.Children.Add(this.IconImage);
 
-            Global.IconBoxes.Add(this.HexagonPath.GetHashCode(), this);
+            Global.IconBoxes.Add(this.Hexagon.GetHashCode(), this);
 
             this.CreateHexagonSnap();
         }
@@ -131,8 +131,8 @@ namespace WPFDeskManager
             this.CenterX = locNow.X + offsetX;
             this.CenterY = locNow.Y + offsetY;
 
-            Canvas.SetTop(this.HexagonPath, this.CenterY);
-            Canvas.SetLeft(this.HexagonPath, this.CenterX);
+            Canvas.SetTop(this.Hexagon, this.CenterY);
+            Canvas.SetLeft(this.Hexagon, this.CenterX);
             Canvas.SetTop(this.IconImage, this.CenterY - this.IconImage.Height / 2);
             Canvas.SetLeft(this.IconImage, this.CenterX - this.IconImage.Width / 2);
         }
@@ -149,8 +149,8 @@ namespace WPFDeskManager
                 this.CenterY = locNow.Y;
             }
 
-            Canvas.SetTop(this.HexagonPath, this.CenterY);
-            Canvas.SetLeft(this.HexagonPath, this.CenterX);
+            Canvas.SetTop(this.Hexagon, this.CenterY);
+            Canvas.SetLeft(this.Hexagon, this.CenterX);
             Canvas.SetTop(this.IconImage, this.CenterY - this.IconImage.Height / 2);
             Canvas.SetLeft(this.IconImage, this.CenterX - this.IconImage.Width / 2);
             this.CreateHexagonSnap();
@@ -324,7 +324,7 @@ namespace WPFDeskManager
         /// <param name="toShadowDepth">阴影深度</param>
         private void AnimateShadowOpacity(Color toColor, double toOpacity, int toShadowDepth)
         {
-            if (this.HexagonPath.Effect is not DropShadowEffect effect)
+            if (this.Hexagon.Effect is not DropShadowEffect effect)
             {
                 return;
             }
@@ -352,11 +352,11 @@ namespace WPFDeskManager
         /// <param name="toColor">颜色</param>
         private void AnimateStrokeColor(Color toColor)
         {
-            SolidColorBrush? strokeBrush = this.HexagonPath.Stroke as SolidColorBrush;
+            SolidColorBrush? strokeBrush = this.Hexagon.Stroke as SolidColorBrush;
             if (strokeBrush == null)
             {
                 strokeBrush = new SolidColorBrush();
-                this.HexagonPath.Stroke = strokeBrush;
+                this.Hexagon.Stroke = strokeBrush;
             }
 
             strokeBrush.BeginAnimation(SolidColorBrush.ColorProperty, new ColorAnimation
