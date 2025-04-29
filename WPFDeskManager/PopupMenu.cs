@@ -2,7 +2,6 @@
 using System.Windows;
 using System.Windows.Media;
 using System.Windows.Controls.Primitives;
-using System.Windows.Shapes;
 
 namespace WPFDeskManager
 {
