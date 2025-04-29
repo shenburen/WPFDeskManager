@@ -216,33 +216,20 @@ namespace WPFDeskManager
         {
             this.Pop = new PopMenu();
 
-            MenuItem switchIcon = this.Pop.AddMenuItem("切换显示图标");
-            this.Pop.AddMenuItem(switchIcon, "金牛座", (object sender, RoutedEventArgs e) =>
-            {
-                Path? path = this.Pop.GetPlacementTarget(sender);
-                if(path == null)
-                {
-                    return;
-                }
-                if (!Global.IconBoxes.TryGetValue(path.GetHashCode(), out IconBox? iconBox))
-                {
-                    return;
-                }
-                iconBox.IconImage.Source = Common.GetSvgFromResources("pack://application:,,,/Assets/icon-金牛座.svg");
-            });
-            this.Pop.AddMenuItem(switchIcon, "双鱼座", (object sender, RoutedEventArgs e) =>
-            {
-                Path? path = this.Pop.GetPlacementTarget(sender);
-                if (path == null)
-                {
-                    return;
-                }
-                if (!Global.IconBoxes.TryGetValue(path.GetHashCode(), out IconBox? iconBox))
-                {
-                    return;
-                }
-                iconBox.IconImage.Source = Common.GetSvgFromResources("pack://application:,,,/Assets/icon-双鱼座.svg");
-            });
+            MenuItem switchIcon = this.Pop.AddMenuItem("切换图标");
+            this.Pop.AddMenuItem(switchIcon, "牡羊座", this.SwitchHexagonIcon);
+            this.Pop.AddMenuItem(switchIcon, "金牛座", this.SwitchHexagonIcon);
+            this.Pop.AddMenuItem(switchIcon, "双子座", this.SwitchHexagonIcon);
+            this.Pop.AddMenuItem(switchIcon, "巨蟹座", this.SwitchHexagonIcon);
+            this.Pop.AddMenuItem(switchIcon, "狮子座", this.SwitchHexagonIcon);
+            this.Pop.AddMenuItem(switchIcon, "处女座", this.SwitchHexagonIcon);
+            this.Pop.AddMenuItem(switchIcon, "天秤座", this.SwitchHexagonIcon);
+            this.Pop.AddMenuItem(switchIcon, "天蝎座", this.SwitchHexagonIcon);
+            this.Pop.AddMenuItem(switchIcon, "射手座", this.SwitchHexagonIcon);
+            this.Pop.AddMenuItem(switchIcon, "摩羯座", this.SwitchHexagonIcon);
+            this.Pop.AddMenuItem(switchIcon, "水瓶座", this.SwitchHexagonIcon);
+            this.Pop.AddMenuItem(switchIcon, "双鱼座", this.SwitchHexagonIcon);
+
             this.Pop.AddMenuItem("添加", (object sender, RoutedEventArgs e) =>
             {
 
@@ -254,6 +241,44 @@ namespace WPFDeskManager
 
             this.Hexagon.ContextMenu = this.Pop.Menu;
             this.Pop.Menu.PlacementTarget = this.Hexagon;
+        }
+
+        /// <summary>
+        /// 切换图标
+        /// </summary>
+        /// <param name="sender"></param>
+        /// <param name="e"></param>
+        public void SwitchHexagonIcon(object sender, RoutedEventArgs e)
+        {
+            MenuItem? menuItemSub = sender as MenuItem;
+            if (menuItemSub == null)
+            {
+                return;
+            }
+
+            MenuItem? menuItem = menuItemSub?.Parent as MenuItem;
+            if (menuItem == null)
+            {
+                return;
+            }
+
+            ContextMenu? contextMenu = menuItem?.Parent as ContextMenu;
+            if (contextMenu == null)
+            {
+                return;
+            }
+
+            if (contextMenu.PlacementTarget is not Path path)
+            {
+                return;
+            }
+
+            if (!Global.IconBoxes.TryGetValue(path.GetHashCode(), out IconBox? iconBox))
+            {
+                return;
+            }
+
+            iconBox.IconImage.Source = Common.GetSvgFromResources("pack://application:,,,/Assets/icon-" + menuItemSub?.Header + ".svg");
         }
 
         /// <summary>
