@@ -56,7 +56,7 @@ namespace WPFDeskManager
             ActionMouseMove = mouseMove;
             ActionMouseLeftUp = mouseLeftUp;
 
-            PresentationSource source = PresentationSource.FromVisual(Application.Current.MainWindow);
+            PresentationSource source = PresentationSource.FromVisual(Global.MainWindow);
             if (source != null)
             {
                 DevicePixelRatioX = source.CompositionTarget.TransformToDevice.M11;
