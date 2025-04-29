@@ -6,7 +6,7 @@ using System.Windows.Shapes;
 
 namespace WPFDeskManager
 {
-    internal class PopMenu
+    internal class PopupMenu
     {
         /// <summary>
         /// 菜单
@@ -16,7 +16,7 @@ namespace WPFDeskManager
         /// <summary>
         /// 构造函数
         /// </summary>
-        public PopMenu()
+        public PopupMenu()
         {
             this.Menu = new ContextMenu();
             ApplyContextMenuTemplate();
@@ -102,7 +102,7 @@ namespace WPFDeskManager
             border.SetValue(Border.BackgroundProperty, new SolidColorBrush(Color.FromArgb(220, 0, 0, 0)));
             border.SetValue(Border.BorderBrushProperty, new SolidColorBrush(Color.FromRgb(68, 68, 68)));
             border.SetValue(Border.BorderThicknessProperty, new Thickness(2));
-            border.SetValue(Border.CornerRadiusProperty, new CornerRadius(8));
+            border.SetValue(Border.CornerRadiusProperty, new CornerRadius(4));
             border.AppendChild(stackPanel);
 
             ControlTemplate template = new ControlTemplate(typeof(ContextMenu));
@@ -133,7 +133,7 @@ namespace WPFDeskManager
             itemsBorder.SetValue(Border.BackgroundProperty, new SolidColorBrush(Color.FromArgb(220, 0, 0, 0)));
             itemsBorder.SetValue(Border.BorderBrushProperty, new SolidColorBrush(Color.FromRgb(68, 68, 68)));
             itemsBorder.SetValue(Border.BorderThicknessProperty, new Thickness(2));
-            itemsBorder.SetValue(Border.CornerRadiusProperty, new CornerRadius(8));
+            itemsBorder.SetValue(Border.CornerRadiusProperty, new CornerRadius(4));
             itemsBorder.AppendChild(itemsPresenter);
 
             FrameworkElementFactory popup = new FrameworkElementFactory(typeof(Popup));

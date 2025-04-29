@@ -9,7 +9,7 @@ namespace WPFDeskManager
     {
         public TaskbarIcon TrayIcon;
 
-        public PopMenu Pop;
+        public PopupMenu Popup;
 
         #region Win32 API
         [DllImport("user32.dll", SetLastError = true)]
@@ -35,10 +35,10 @@ namespace WPFDeskManager
                 ToolTipText = "桌面整理工具",
             };
 
-            this.Pop = new PopMenu();
-            this.Pop.AddMenuItem("切换桌面图标", this.SwitchDesktopEvent);
-            this.Pop.AddMenuItem("退出", this.ExitApplication);
-            this.TrayIcon.ContextMenu = this.Pop.Menu;
+            this.Popup = new PopupMenu();
+            this.Popup.AddMenuItem("切换桌面图标", this.SwitchDesktopEvent);
+            this.Popup.AddMenuItem("退出", this.ExitApplication);
+            this.TrayIcon.ContextMenu = this.Popup.Menu;
         }
 
         private void SwitchDesktopEvent(object sender, RoutedEventArgs e)

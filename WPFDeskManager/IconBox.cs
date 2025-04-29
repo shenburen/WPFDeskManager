@@ -64,7 +64,7 @@ namespace WPFDeskManager
         /// <summary>
         /// 菜单
         /// </summary>
-        public PopMenu Pop = new PopMenu();
+        public PopupMenu Popup = new PopupMenu();
 
         /// <summary>
         /// 构造函数
@@ -214,33 +214,33 @@ namespace WPFDeskManager
         /// </summary>
         private void CreateContextMenu()
         {
-            this.Pop = new PopMenu();
+            this.Popup = new PopupMenu();
 
-            MenuItem switchIcon = this.Pop.AddMenuItem("切换图标");
-            this.Pop.AddMenuItem(switchIcon, "牡羊座", this.SwitchHexagonIcon);
-            this.Pop.AddMenuItem(switchIcon, "金牛座", this.SwitchHexagonIcon);
-            this.Pop.AddMenuItem(switchIcon, "双子座", this.SwitchHexagonIcon);
-            this.Pop.AddMenuItem(switchIcon, "巨蟹座", this.SwitchHexagonIcon);
-            this.Pop.AddMenuItem(switchIcon, "狮子座", this.SwitchHexagonIcon);
-            this.Pop.AddMenuItem(switchIcon, "处女座", this.SwitchHexagonIcon);
-            this.Pop.AddMenuItem(switchIcon, "天秤座", this.SwitchHexagonIcon);
-            this.Pop.AddMenuItem(switchIcon, "天蝎座", this.SwitchHexagonIcon);
-            this.Pop.AddMenuItem(switchIcon, "射手座", this.SwitchHexagonIcon);
-            this.Pop.AddMenuItem(switchIcon, "摩羯座", this.SwitchHexagonIcon);
-            this.Pop.AddMenuItem(switchIcon, "水瓶座", this.SwitchHexagonIcon);
-            this.Pop.AddMenuItem(switchIcon, "双鱼座", this.SwitchHexagonIcon);
+            MenuItem switchIcon = this.Popup.AddMenuItem("切换图标");
+            this.Popup.AddMenuItem(switchIcon, "牡羊座", this.SwitchHexagonIcon);
+            this.Popup.AddMenuItem(switchIcon, "金牛座", this.SwitchHexagonIcon);
+            this.Popup.AddMenuItem(switchIcon, "双子座", this.SwitchHexagonIcon);
+            this.Popup.AddMenuItem(switchIcon, "巨蟹座", this.SwitchHexagonIcon);
+            this.Popup.AddMenuItem(switchIcon, "狮子座", this.SwitchHexagonIcon);
+            this.Popup.AddMenuItem(switchIcon, "处女座", this.SwitchHexagonIcon);
+            this.Popup.AddMenuItem(switchIcon, "天秤座", this.SwitchHexagonIcon);
+            this.Popup.AddMenuItem(switchIcon, "天蝎座", this.SwitchHexagonIcon);
+            this.Popup.AddMenuItem(switchIcon, "射手座", this.SwitchHexagonIcon);
+            this.Popup.AddMenuItem(switchIcon, "摩羯座", this.SwitchHexagonIcon);
+            this.Popup.AddMenuItem(switchIcon, "水瓶座", this.SwitchHexagonIcon);
+            this.Popup.AddMenuItem(switchIcon, "双鱼座", this.SwitchHexagonIcon);
 
-            this.Pop.AddMenuItem("添加", (object sender, RoutedEventArgs e) =>
+            this.Popup.AddMenuItem("添加", (object sender, RoutedEventArgs e) =>
             {
 
             });
-            this.Pop.AddMenuItem("删除", (object sender, RoutedEventArgs e) =>
+            this.Popup.AddMenuItem("删除", (object sender, RoutedEventArgs e) =>
             {
 
             });
 
-            this.Hexagon.ContextMenu = this.Pop.Menu;
-            this.Pop.Menu.PlacementTarget = this.Hexagon;
+            this.Hexagon.ContextMenu = this.Popup.Menu;
+            this.Popup.Menu.PlacementTarget = this.Hexagon;
         }
 
         /// <summary>
