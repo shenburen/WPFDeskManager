@@ -18,6 +18,9 @@ namespace WPFDeskManager
         private PopupMenu Popup;
 
         #region Win32 API
+        private const uint WM_COMMAND = 0x0111;
+        private static readonly IntPtr TOGGLE_SHOW_DESKTOP_ICONS = new IntPtr(0x7402);
+
         [DllImport("user32.dll", SetLastError = true)]
         private static extern IntPtr FindWindow(string lpClassName, string? lpWindowName);
 
@@ -26,9 +29,6 @@ namespace WPFDeskManager
 
         [DllImport("user32.dll", SetLastError = true)]
         private static extern IntPtr SendMessage(IntPtr hWnd, uint Msg, IntPtr wParam, IntPtr lParam);
-
-        private const uint WM_COMMAND = 0x0111;
-        private static readonly IntPtr TOGGLE_SHOW_DESKTOP_ICONS = new IntPtr(0x7402);
         #endregion
 
         /// <summary>

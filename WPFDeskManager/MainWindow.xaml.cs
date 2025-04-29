@@ -28,40 +28,18 @@ namespace WPFDeskManager
         protected override void OnContentRendered(EventArgs e)
         {
             base.OnContentRendered(e);
-            new IconBox(this.MainPanel, this.Width / 2, this.Height / 2, HexagonMouseLeftButtonDown);
+            MouseEvent.SetHook(ActionMouseMove, ActionMouseLeftUp);
+
+            new IconBox(this.MainPanel, this.Width / 2, this.Height / 2, ActionMouseLeftDown);
         }
 
-        protected override void OnMouseMove(MouseEventArgs e)
+        protected override void OnClosed(EventArgs e)
         {
-            base.OnMouseMove(e);
-
-            if (this.CurrentPath == null)
-            {
-                return;
-            }
-
-            Point loc = e.GetPosition(this.MainPanel);
-            this.CurrentPath.Update(loc, this.CurrentLoc);
-            this.CurrentLoc = loc;
+            MouseEvent.Unhook();
+            base.OnClosed(e);
         }
 
-        protected override void OnMouseUp(MouseButtonEventArgs e)
-        {
-            base.OnMouseUp(e);
-
-            if (this.CurrentPath == null)
-            {
-                return;
-            }
-
-            Point loc = e.GetPosition(this);
-            this.CurrentPath.Updated(loc);
-
-            this.CurrentPath = null;
-            this.MainPanel.Background = new SolidColorBrush((Color)ColorConverter.ConvertFromString("#00000000"));
-        }
-
-        private void HexagonMouseLeftButtonDown(object sender, MouseButtonEventArgs e)
+        private void ActionMouseLeftDown(object sender, MouseButtonEventArgs e)
         {
             if (sender is not Path path)
             {
@@ -73,9 +51,30 @@ namespace WPFDeskManager
                 return;
             }
 
-            this.CurrentLoc = e.GetPosition(this);
             this.CurrentPath = iconBox;
-            this.MainPanel.Background = new SolidColorBrush((Color)ColorConverter.ConvertFromString("#19000000"));
+            this.CurrentLoc = e.GetPosition(this);
+        }
+
+        private void ActionMouseLeftUp(Point loc)
+        {
+            if (this.CurrentPath == null)
+            {
+                return;
+            }
+
+            this.CurrentPath.Updated(loc);
+            this.CurrentPath = null;
+        }
+
+        private void ActionMouseMove(Point loc)
+        {
+            if (this.CurrentPath == null)
+            {
+                return;
+            }
+
+            this.CurrentPath.Update(loc, this.CurrentLoc);
+            this.CurrentLoc = loc;
         }
     }
 }

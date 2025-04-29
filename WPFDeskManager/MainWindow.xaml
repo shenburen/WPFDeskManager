@@ -8,7 +8,7 @@
         Title="MainWindow" Topmost="False" AllowsTransparency="True" Background="Transparent"
         ResizeMode="NoResize" WindowState="Maximized"  WindowStyle="None" ShowInTaskbar="False">
 
-    <Canvas x:Name="MainPanel" Background="#00000000">
+    <Canvas x:Name="MainPanel">
 
     </Canvas>
 </Window>
