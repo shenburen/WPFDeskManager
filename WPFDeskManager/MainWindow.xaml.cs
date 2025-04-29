@@ -26,11 +26,14 @@ namespace WPFDeskManager
         private const int WS_EX_TOOLWINDOW = 0x00000080;
         private const int WS_EX_APPWINDOW = 0x00040000;
 
-        [DllImport("user32.dll")]
+        [DllImport("user32.dll", SetLastError = true)]
         private static extern int GetWindowLong(IntPtr hwnd, int index);
 
-        [DllImport("user32.dll")]
+        [DllImport("user32.dll", SetLastError = true)]
         private static extern int SetWindowLong(IntPtr hwnd, int index, int newStyle);
+
+        [DllImport("user32.dll", SetLastError = true)]
+        private static extern bool SetWindowPos(IntPtr hWnd, IntPtr hWndInsertAfter, int X, int Y, int cx, int cy, uint uFlags);
         #endregion
 
         public MainWindow()
@@ -42,14 +45,16 @@ namespace WPFDeskManager
         {
             base.OnSourceInitialized(e);
 
-            // 将窗口设置为工具窗口
             IntPtr hwnd = new WindowInteropHelper(this).Handle;
-            int exStyle = GetWindowLong(hwnd, GWL_EXSTYLE);
 
+            // 将窗口设置为工具窗口
+            int exStyle = GetWindowLong(hwnd, GWL_EXSTYLE);
             exStyle |= WS_EX_TOOLWINDOW;
             exStyle &= ~WS_EX_APPWINDOW;
-
             SetWindowLong(hwnd, GWL_EXSTYLE, exStyle);
+
+            // 将窗口设置为最顶层
+            // SetWindowPos(hwnd, new IntPtr(-1), 0, 0, 0, 0, 0);
         }
 
         protected override void OnContentRendered(EventArgs e)

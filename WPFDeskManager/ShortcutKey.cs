@@ -1,4 +1,5 @@
 ﻿using System.Runtime.InteropServices;
+using System.Windows;
 using System.Windows.Input;
 using System.Windows.Interop;
 
@@ -16,10 +17,10 @@ namespace WPFDeskManager
         private const uint MOD_SHIFT = 0x0004; // shift
         private const uint MOD_WIN = 0x0008; // win
 
-        [DllImport("user32.dll")]
+        [DllImport("user32.dll", SetLastError = true)]
         private static extern bool RegisterHotKey(IntPtr hWnd, int id, uint fsModifiers, uint vk);
 
-        [DllImport("user32.dll")]
+        [DllImport("user32.dll", SetLastError = true)]
         private static extern bool UnregisterHotKey(IntPtr hWnd, int id);
         #endregion
 
