@@ -62,7 +62,15 @@ namespace WPFDeskManager
             base.OnContentRendered(e);
             MouseEvent.SetHook(ActionMouseMove, ActionMouseLeftUp);
 
-            new IconBox(this.MainPanel, this.Width / 2, this.Height / 2, ActionMouseLeftDown);
+            IconBoxInfo iconBoxInfo = new IconBoxInfo
+            {
+                CenterX = this.Width / 2,
+                CenterY = this.Height / 2,
+                IconType = 1,
+                SvgName = "pack://application:,,,/Assets/icon-金牛座.svg",
+                IsRoot = true,
+            };
+            IconBox.CreateIconBox(this, this.ActionMouseLeftDown, iconBoxInfo);
         }
 
         protected override void OnClosed(EventArgs e)
