@@ -10,11 +10,11 @@ namespace WPFDeskManager
         // 激活窗口ID
         private const int ACTIVE_MAIN_WINDOW = 9000;
 
-        private const int WINDOWS_HOTKEY = 0x0312;
-        private const uint WINDOWS_HOTKEY_ALT = 0x0001;
-        private const uint WINDOWS_HOTKEY_CONTROL = 0x0002;
-        private const uint WINDOWS_HOTKEY_SHIFT = 0x0004;
-        private const uint WINDOWS_HOTKEY_WIN = 0x0008;
+        private const int WM_HOTKEY = 0x0312; // 快捷键
+        private const uint MOD_ALT = 0x0001; // alt
+        private const uint MOD_CONTROL = 0x0002; // ctrl
+        private const uint MOD_SHIFT = 0x0004; // shift
+        private const uint MOD_WIN = 0x0008; // win
 
         [DllImport("user32.dll")]
         private static extern bool RegisterHotKey(IntPtr hWnd, int id, uint fsModifiers, uint vk);
@@ -28,11 +28,11 @@ namespace WPFDeskManager
         /// </summary>
         public ShortcutKey()
         {
-            WindowInteropHelper helper = new WindowInteropHelper(Global.MainWindow);
-            HwndSource source = HwndSource.FromHwnd(helper.Handle);
+            IntPtr hwnd = new WindowInteropHelper(Global.MainWindow).Handle;
+            HwndSource source = HwndSource.FromHwnd(hwnd);
             source.AddHook(HwndHook);
 
-            if (!RegisterHotKey(helper.Handle, ACTIVE_MAIN_WINDOW, WINDOWS_HOTKEY_CONTROL, (uint)KeyInterop.VirtualKeyFromKey(Key.Space)))
+            if (!RegisterHotKey(hwnd, ACTIVE_MAIN_WINDOW, MOD_CONTROL, (uint)KeyInterop.VirtualKeyFromKey(Key.Space)))
             {
                 // 快捷键注册失败，后续我想在注册失败的时候发出通知，现在暂不做处理。
             }
@@ -43,8 +43,8 @@ namespace WPFDeskManager
         /// </summary>
         public void Dispose()
         {
-            WindowInteropHelper helper = new WindowInteropHelper(Global.MainWindow);
-            UnregisterHotKey(helper.Handle, ACTIVE_MAIN_WINDOW);
+            IntPtr hwnd = new WindowInteropHelper(Global.MainWindow).Handle;
+            UnregisterHotKey(hwnd, ACTIVE_MAIN_WINDOW);
         }
 
         /// <summary>
@@ -58,7 +58,7 @@ namespace WPFDeskManager
         /// <returns></returns>
         private IntPtr HwndHook(IntPtr hwnd, int msg, IntPtr wParam, IntPtr lParam, ref bool handled)
         {
-            if (msg == WINDOWS_HOTKEY)
+            if (msg == WM_HOTKEY)
             {
                 int id = wParam.ToInt32();
                 if (id == ACTIVE_MAIN_WINDOW && Global.MainWindow != null)

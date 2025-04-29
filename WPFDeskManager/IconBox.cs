@@ -6,6 +6,7 @@ using System.Windows.Shapes;
 using System.Windows.Media.Imaging;
 using System.Windows.Input;
 using System.Windows.Media.Animation;
+using System.Diagnostics;
 
 namespace WPFDeskManager
 {
@@ -25,6 +26,11 @@ namespace WPFDeskManager
         /// 吸附距离
         /// </summary>
         private int SnapDistance = 10;
+
+        /// <summary>
+        /// 上次点击时间
+        /// </summary>
+        private DateTime LastClickTime;
 
         /// <summary>
         /// 实际指向的路径
@@ -100,6 +106,7 @@ namespace WPFDeskManager
             this.Hexagon.Drop += Path_Drop;
             this.Hexagon.MouseEnter += Path_MouseEnter;
             this.Hexagon.MouseLeave += Path_MouseLeave;
+            this.Hexagon.MouseLeftButtonUp += Path_MouseLeftButtonUp;
             this.Hexagon.MouseLeftButtonDown += (s, e) =>
             {
                 mouseLeftButtonDown.Invoke(s, e);
@@ -392,6 +399,27 @@ namespace WPFDeskManager
         {
             AnimateShadowOpacity(Color.FromRgb(0, 150, 200), 0.4, 8);
             AnimateStrokeColor(Color.FromRgb(68, 68, 68));
+        }
+
+        /// <summary>
+        /// 鼠标左键抬起事件
+        /// </summary>
+        /// <param name="sender"></param>
+        /// <param name="e"></param>
+        /// <exception cref="NotImplementedException"></exception>
+        private void Path_MouseLeftButtonUp(object sender, MouseButtonEventArgs e)
+        {
+            DateTime now = DateTime.Now;
+            if ((now - this.LastClickTime).TotalMilliseconds <= 300 && System.IO.File.Exists(this.TargetPath))
+            {
+                ProcessStartInfo psi = new ProcessStartInfo
+                {
+                    FileName = this.TargetPath,
+                    UseShellExecute = true,
+                };
+                Process.Start(psi);
+            }
+            this.LastClickTime = now;
         }
 
         /// <summary>
