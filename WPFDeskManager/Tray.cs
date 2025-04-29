@@ -10,12 +10,12 @@ namespace WPFDeskManager
         /// <summary>
         /// 托盘图标
         /// </summary>
-        public TaskbarIcon TrayIcon;
+        public static TaskbarIcon? TrayIcon;
 
         /// <summary>
         /// 弹出菜单
         /// </summary>
-        private PopupMenu Popup;
+        private static PopupMenu? Popup;
 
         #region Win32 API
         private const uint WM_COMMAND = 0x0111;
@@ -32,30 +32,30 @@ namespace WPFDeskManager
         #endregion
 
         /// <summary>
-        /// 构造函数
+        /// 创建托盘图标
         /// </summary>
-        public Tray()
+        public static void CreateTray()
         {
             StreamResourceInfo streamInfo = Application.GetResourceStream(new Uri("pack://application:,,,/Assets/logo.ico"));
-            this.TrayIcon = new TaskbarIcon
+            TrayIcon = new TaskbarIcon
             {
                 Icon = new System.Drawing.Icon(streamInfo.Stream),
                 Visibility = Visibility.Visible,
                 ToolTipText = "桌面整理工具",
             };
 
-            this.Popup = new PopupMenu();
-            this.Popup.AddMenuItem("切换桌面图标", this.SwitchDesktopEvent);
-            this.Popup.AddMenuItem("退出", this.ExitApplication);
-            this.TrayIcon.ContextMenu = this.Popup.Menu;
+            Popup = new PopupMenu();
+            Popup.AddMenuItem("切换桌面图标", SwitchDesktopEvent);
+            Popup.AddMenuItem("退出", ExitApplication);
+            TrayIcon.ContextMenu = Popup.Menu;
         }
 
         /// <summary>
         /// 清理资源
         /// </summary>
-        public void Dispose()
+        public static void Dispose()
         {
-            this.TrayIcon.Dispose();
+            TrayIcon?.Dispose();
         }
 
         /// <summary>
@@ -63,7 +63,7 @@ namespace WPFDeskManager
         /// </summary>
         /// <param name="sender"></param>
         /// <param name="e"></param>
-        private void SwitchDesktopEvent(object sender, RoutedEventArgs e)
+        private static void SwitchDesktopEvent(object sender, RoutedEventArgs e)
         {
             IntPtr progman = FindWindow("Progman", null);
             IntPtr shellViewWin = FindWindowEx(progman, IntPtr.Zero, "SHELLDLL_DefView", null);
@@ -81,7 +81,7 @@ namespace WPFDeskManager
         /// </summary>
         /// <param name="sender"></param>
         /// <param name="e"></param>
-        private void ExitApplication(object sender, RoutedEventArgs e)
+        private static void ExitApplication(object sender, RoutedEventArgs e)
         {
             Application.Current.Shutdown();
         }

@@ -3,16 +3,6 @@
     internal class Global
     {
         /// <summary>
-        /// 托盘图标
-        /// </summary>
-        public static Tray? Tray = null;
-
-        /// <summary>
-        /// 快捷键
-        /// </summary>
-        public static ShortcutKey? ShortcutKey = null;
-
-        /// <summary>
         /// 主窗口
         /// </summary>
         public static MainWindow? MainWindow = null;
@@ -30,8 +20,8 @@
             MainWindow = new MainWindow();
             MainWindow.Show();
 
-            Tray = new Tray();
-            ShortcutKey = new ShortcutKey();
+            Tray.CreateTray();
+            ShortcutKey.CreateShortcutKey();
         }
 
         /// <summary>
@@ -39,8 +29,8 @@
         /// </summary>
         public static void Dispose()
         {
-            Tray?.Dispose();
-            ShortcutKey?.Dispose();
+            Tray.Dispose();
+            ShortcutKey.Dispose();
         }
     }
 }

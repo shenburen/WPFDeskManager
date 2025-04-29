@@ -1,5 +1,4 @@
 ﻿using System.Runtime.InteropServices;
-using System.Windows;
 using System.Windows.Input;
 using System.Windows.Interop;
 
@@ -25,9 +24,9 @@ namespace WPFDeskManager
         #endregion
 
         /// <summary>
-        /// 构造函数
+        /// 注册快捷键
         /// </summary>
-        public ShortcutKey()
+        public static void CreateShortcutKey()
         {
             IntPtr hwnd = new WindowInteropHelper(Global.MainWindow).Handle;
             HwndSource source = HwndSource.FromHwnd(hwnd);
@@ -42,7 +41,7 @@ namespace WPFDeskManager
         /// <summary>
         /// 清理资源
         /// </summary>
-        public void Dispose()
+        public static void Dispose()
         {
             IntPtr hwnd = new WindowInteropHelper(Global.MainWindow).Handle;
             UnregisterHotKey(hwnd, ACTIVE_MAIN_WINDOW);
@@ -57,7 +56,7 @@ namespace WPFDeskManager
         /// <param name="lParam"></param>
         /// <param name="handled"></param>
         /// <returns></returns>
-        private IntPtr HwndHook(IntPtr hwnd, int msg, IntPtr wParam, IntPtr lParam, ref bool handled)
+        private static IntPtr HwndHook(IntPtr hwnd, int msg, IntPtr wParam, IntPtr lParam, ref bool handled)
         {
             if (msg == WM_HOTKEY)
             {
