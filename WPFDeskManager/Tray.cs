@@ -1,4 +1,5 @@
 ﻿using Hardcodet.Wpf.TaskbarNotification;
+using System.Runtime.InteropServices;
 using System.Windows;
 using System.Windows.Resources;
 
@@ -9,6 +10,20 @@ namespace WPFDeskManager
         public TaskbarIcon TrayIcon;
 
         public PopMenu Pop;
+
+        #region Win32 API
+        [DllImport("user32.dll", SetLastError = true)]
+        public static extern IntPtr FindWindow(string lpClassName, string? lpWindowName);
+
+        [DllImport("user32.dll", SetLastError = true)]
+        public static extern IntPtr FindWindowEx(IntPtr hwndParent, IntPtr hwndChildAfter, string lpszClass, string? lpszWindow);
+
+        [DllImport("user32.dll", SetLastError = true)]
+        public static extern IntPtr SendMessage(IntPtr hWnd, uint Msg, IntPtr wParam, IntPtr lParam);
+
+        public const uint WM_COMMAND = 0x0111;
+        public static readonly IntPtr TOGGLE_SHOW_DESKTOP_ICONS = new IntPtr(0x7402);
+        #endregion
 
         public Tray()
         {
@@ -21,22 +36,22 @@ namespace WPFDeskManager
             };
 
             this.Pop = new PopMenu();
-
-            this.Pop.AddMenuItem("隐藏桌面图标", this.HideDesktopEvent);
-            this.Pop.AddMenuItem("显示桌面图标", this.ShowDesktopEvent);
+            this.Pop.AddMenuItem("切换桌面图标", this.SwitchDesktopEvent);
             this.Pop.AddMenuItem("退出", this.ExitApplication);
-
             this.TrayIcon.ContextMenu = this.Pop.Menu;
         }
 
-        private void HideDesktopEvent(object sender, RoutedEventArgs e)
+        private void SwitchDesktopEvent(object sender, RoutedEventArgs e)
         {
+            IntPtr progman = FindWindow("Progman", null);
+            IntPtr shellViewWin = FindWindowEx(progman, IntPtr.Zero, "SHELLDLL_DefView", null);
 
-        }
+            if (shellViewWin == IntPtr.Zero)
+            {
+                return;
+            }
 
-        private void ShowDesktopEvent(object sender, RoutedEventArgs e)
-        {
-
+            SendMessage(shellViewWin, WM_COMMAND, TOGGLE_SHOW_DESKTOP_ICONS, IntPtr.Zero);
         }
 
         private void ExitApplication(object sender, RoutedEventArgs e)

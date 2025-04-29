@@ -28,9 +28,7 @@ namespace WPFDeskManager
         protected override void OnContentRendered(EventArgs e)
         {
             base.OnContentRendered(e);
-            new IconBox(this.MainPanel, 400, 200, HexagonMouseLeftButtonDown);
-            new IconBox(this.MainPanel, 600, 400, HexagonMouseLeftButtonDown);
-            new IconBox(this.MainPanel, 800, 600, HexagonMouseLeftButtonDown);
+            new IconBox(this.MainPanel, this.Width / 2, this.Height / 2, HexagonMouseLeftButtonDown);
         }
 
         protected override void OnMouseMove(MouseEventArgs e)
