@@ -6,7 +6,7 @@
         xmlns:local="clr-namespace:WPFDeskManager"
         mc:Ignorable="d"
         Title="MainWindow" Topmost="False" AllowsTransparency="True" Background="Transparent"
-        ResizeMode="NoResize" WindowState="Maximized"  WindowStyle="None" ShowInTaskbar="False">
+        ResizeMode="NoResize" WindowState="Maximized"  WindowStyle="None">
 
     <Canvas x:Name="MainPanel">
 
