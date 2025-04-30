@@ -12,21 +12,6 @@ namespace WPFDeskManager
     internal class IconBox
     {
         /// <summary>
-        /// 六边形
-        /// </summary>
-        public Path Hexagon;
-
-        /// <summary>
-        /// 图标
-        /// </summary>
-        public Image IconImage;
-
-        /// <summary>
-        /// 吸附点
-        /// </summary>
-        public List<SnapPoint> SnapPoints = new List<SnapPoint>();
-
-        /// <summary>
         /// 上次点击时间
         /// </summary>
         private DateTime LastClickTime;
@@ -44,7 +29,7 @@ namespace WPFDeskManager
         /// <summary>
         /// 鼠标压下事件
         /// </summary>
-        private Action<object, MouseButtonEventArgs> MouseLeftButtonDown;
+        private Action<IconBox, Point> MouseLeftButtonDown;
 
         /// <summary>
         /// 图标配置
@@ -57,11 +42,14 @@ namespace WPFDeskManager
         /// <param name="canvas">主容器</param>
         /// <param name="mouseLeftButtonDown">鼠标事件</param>
         /// <param name="iconBoxInfo">图标配置</param>
-        public static void CreateIconBox(MainWindow window, Action<object, MouseButtonEventArgs> mouseLeftButtonDown, IconBoxInfo iconBoxInfo)
+        public static void CreateIconBox(MainWindow window, Action<IconBox, Point> mouseLeftButtonDown, IconBoxInfo iconBoxInfo)
         {
             IconBox iconBox = new IconBox(window, mouseLeftButtonDown, iconBoxInfo);
             iconBoxInfo.Self = iconBox;
-            Global.IconBoxes.Add(iconBox.Hexagon.GetHashCode(), iconBox);
+            if (iconBox.IconBoxInfo.Hexagon != null)
+            {
+                Global.IconBoxes.Add(iconBox.IconBoxInfo.Hexagon.GetHashCode(), iconBox);
+            }
         }
 
         /// <summary>
@@ -70,14 +58,14 @@ namespace WPFDeskManager
         /// <param name="canvas">主容器</param>
         /// <param name="mouseLeftButtonDown">鼠标事件</param>
         /// <param name="iconBoxInfo">图标配置</param>
-        public IconBox(MainWindow window, Action<object, MouseButtonEventArgs> mouseLeftButtonDown, IconBoxInfo iconBoxInfo)
+        public IconBox(MainWindow window, Action<IconBox, Point> mouseLeftButtonDown, IconBoxInfo iconBoxInfo)
         {
             this.MainWindow = window;
             this.MouseLeftButtonDown = mouseLeftButtonDown;
             this.IconBoxInfo = iconBoxInfo;
 
             // 六边形
-            this.Hexagon = new Path
+            this.IconBoxInfo.Hexagon = new Path
             {
                 Data = Common.CreateHexagonGeo(),
                 Fill = new SolidColorBrush(Color.FromArgb(180, 0, 0, 0)),
@@ -92,17 +80,17 @@ namespace WPFDeskManager
                 StrokeThickness = 2,
                 AllowDrop = true,
             };
-            Canvas.SetTop(this.Hexagon, this.IconBoxInfo.CenterY);
-            Canvas.SetLeft(this.Hexagon, this.IconBoxInfo.CenterX);
-            this.Hexagon.Drop += Path_Drop;
-            this.Hexagon.MouseEnter += Path_MouseEnter;
-            this.Hexagon.MouseLeave += Path_MouseLeave;
-            this.Hexagon.MouseLeftButtonUp += Path_MouseLeftButtonUp;
-            this.Hexagon.MouseLeftButtonDown += Path_MouseLeftButtonDown;
-            this.MainWindow.MainPanel.Children.Add(this.Hexagon);
+            Canvas.SetTop(this.IconBoxInfo.Hexagon, this.IconBoxInfo.CenterY);
+            Canvas.SetLeft(this.IconBoxInfo.Hexagon, this.IconBoxInfo.CenterX);
+            this.IconBoxInfo.Hexagon.Drop += Path_Drop;
+            this.IconBoxInfo.Hexagon.MouseEnter += Path_MouseEnter;
+            this.IconBoxInfo.Hexagon.MouseLeave += Path_MouseLeave;
+            this.IconBoxInfo.Hexagon.MouseLeftButtonUp += Path_MouseLeftButtonUp;
+            this.IconBoxInfo.Hexagon.MouseLeftButtonDown += Path_MouseLeftButtonDown;
+            this.MainWindow.MainPanel.Children.Add(this.IconBoxInfo.Hexagon);
 
             // 图标
-            this.IconImage = new Image
+            this.IconBoxInfo.IconImage = new Image
             {
                 Width = Config.IconSize,
                 Height = Config.IconSize,
@@ -110,17 +98,17 @@ namespace WPFDeskManager
             };
             if (this.IconBoxInfo.IconType == 1 && this.IconBoxInfo.SvgName != null) // SVG图标
             {
-                this.IconImage.Source = Common.GetSvgFromResources(this.IconBoxInfo.SvgName);
+                this.IconBoxInfo.IconImage.Source = Common.GetSvgFromResources(this.IconBoxInfo.SvgName);
             }
             else if (this.IconBoxInfo.IconType == 2 && this.IconBoxInfo.TargetPath != null) // 文件图标
             {
                 Common.GetIconFromFiles(this.IconBoxInfo.TargetPath, out string? targetPath, out BitmapSource? image);
                 this.IconBoxInfo.TargetPath = targetPath;
-                this.IconImage.Source = image;
+                this.IconBoxInfo.IconImage.Source = image;
             }
-            Canvas.SetTop(this.IconImage, this.IconBoxInfo.CenterY - this.IconImage.Height / 2);
-            Canvas.SetLeft(this.IconImage, this.IconBoxInfo.CenterX - this.IconImage.Width / 2);
-            this.MainWindow.MainPanel.Children.Add(this.IconImage);
+            Canvas.SetTop(this.IconBoxInfo.IconImage, this.IconBoxInfo.CenterY - this.IconBoxInfo.IconImage.Height / 2);
+            Canvas.SetLeft(this.IconBoxInfo.IconImage, this.IconBoxInfo.CenterX - this.IconBoxInfo.IconImage.Width / 2);
+            this.MainWindow.MainPanel.Children.Add(this.IconBoxInfo.IconImage);
 
             Common.CreateHexagonSnap(this);
             this.CreateContextMenu();
@@ -210,12 +198,18 @@ namespace WPFDeskManager
             }
             this.Popup.AddMenuItem("删除", (object sender, RoutedEventArgs e) =>
             {
-                Global.IconBoxes.Remove(this.Hexagon.GetHashCode());
-                this.MainWindow.MainPanel.Children.Remove(this.Hexagon);
-                this.MainWindow.MainPanel.Children.Remove(this.IconImage);
+                if (this.IconBoxInfo.Hexagon != null)
+                {
+                    Global.IconBoxes.Remove(this.IconBoxInfo.Hexagon.GetHashCode());
+                }
+                this.MainWindow.MainPanel.Children.Remove(this.IconBoxInfo.Hexagon);
+                this.MainWindow.MainPanel.Children.Remove(this.IconBoxInfo.IconImage);
             });
 
-            this.Hexagon.ContextMenu = this.Popup.Menu;
+            if (this.IconBoxInfo.Hexagon != null)
+            {
+                this.IconBoxInfo.Hexagon.ContextMenu = this.Popup.Menu;
+            }
         }
 
         /// <summary>
@@ -232,7 +226,10 @@ namespace WPFDeskManager
             }
 
             this.IconBoxInfo.SvgName = "pack://application:,,,/Assets/icon-" + menuItem?.Header + ".svg";
-            this.IconImage.Source = Common.GetSvgFromResources("pack://application:,,,/Assets/icon-" + menuItem?.Header + ".svg");
+            if (this.IconBoxInfo.IconImage != null)
+            {
+                this.IconBoxInfo.IconImage.Source = Common.GetSvgFromResources("pack://application:,,,/Assets/icon-" + menuItem?.Header + ".svg");
+            }
         }
 
         /// <summary>
@@ -250,12 +247,11 @@ namespace WPFDeskManager
 
             foreach (string file in files)
             {
-                foreach (SnapPoint snap in this.SnapPoints)
+                foreach (SnapPoint snap in this.IconBoxInfo.SnapPoints)
                 {
+                    // 拖入一个新图标的时候添加默认的吸附关系
                     if (!snap.IsSnapped)
                     {
-                        snap.IsSnapped = true;
-
                         IconBoxInfo iconBoxInfo = new IconBoxInfo
                         {
                             CenterY = snap.Point.Y,
@@ -265,6 +261,9 @@ namespace WPFDeskManager
                             Parent = this.IconBoxInfo,
                         };
                         this.IconBoxInfo.Children.Add(iconBoxInfo);
+
+                        snap.IsSnapped = true;
+                        snap.IconBoxInfo = iconBoxInfo;
 
                         CreateIconBox(this.MainWindow, this.MouseLeftButtonDown, iconBoxInfo);
                         break;
@@ -280,8 +279,12 @@ namespace WPFDeskManager
         /// <param name="e"></param>
         private void Path_MouseEnter(object sender, MouseEventArgs e)
         {
-            Common.AnimateStrokeColor(this.Hexagon, Colors.Cyan);
-            Common.AnimateShadowOpacity(this.Hexagon, Colors.Cyan, 0.7, 15);
+            if (this.IconBoxInfo.Hexagon == null)
+            {
+                return;
+            }
+            Common.AnimateStrokeColor(this.IconBoxInfo.Hexagon, Colors.Cyan);
+            Common.AnimateShadowOpacity(this.IconBoxInfo.Hexagon, Colors.Cyan, 0.7, 15);
         }
 
         /// <summary>
@@ -291,8 +294,12 @@ namespace WPFDeskManager
         /// <param name="e"></param>
         private void Path_MouseLeave(object sender, MouseEventArgs e)
         {
-            Common.AnimateStrokeColor(this.Hexagon, Color.FromRgb(68, 68, 68));
-            Common.AnimateShadowOpacity(this.Hexagon, Color.FromRgb(0, 150, 200), 0.4, 8);
+            if (this.IconBoxInfo.Hexagon == null)
+            {
+                return;
+            }
+            Common.AnimateStrokeColor(this.IconBoxInfo.Hexagon, Color.FromRgb(68, 68, 68));
+            Common.AnimateShadowOpacity(this.IconBoxInfo.Hexagon, Color.FromRgb(0, 150, 200), 0.4, 8);
         }
 
         /// <summary>
@@ -300,7 +307,6 @@ namespace WPFDeskManager
         /// </summary>
         /// <param name="sender"></param>
         /// <param name="e"></param>
-        /// <exception cref="NotImplementedException"></exception>
         private void Path_MouseLeftButtonUp(object sender, MouseButtonEventArgs e)
         {
             DateTime now = DateTime.Now;
@@ -323,8 +329,30 @@ namespace WPFDeskManager
         /// <param name="e"></param>
         private void Path_MouseLeftButtonDown(object sender, MouseButtonEventArgs e)
         {
-            // TODO: 这里处理一些东西
-            this.MouseLeftButtonDown.Invoke(sender, e);
+            // 鼠标压下一个图标的时候，需要把图标和其父节点的吸附关系清空
+            if (!this.IconBoxInfo.IsRoot && this.IconBoxInfo.Parent != null)
+            {
+                foreach (SnapPoint snap in this.IconBoxInfo.Parent.SnapPoints)
+                {
+                    if (snap.IconBoxInfo == IconBoxInfo)
+                    {
+                        snap.IsSnapped = false;
+                        snap.IconBoxInfo = null;
+                    }
+                }
+                this.IconBoxInfo.Parent.Children.Remove(this.IconBoxInfo);
+
+
+                foreach (SnapPoint snap in this.IconBoxInfo.SnapPoints)
+                {
+                    snap.IsSnapped = false;
+                    snap.IconBoxInfo = null;
+                }
+                this.IconBoxInfo.Parent = null;
+            }
+
+            Point point = e.GetPosition(this.MainWindow);
+            this.MouseLeftButtonDown.Invoke(this, point);
         }
     }
 }

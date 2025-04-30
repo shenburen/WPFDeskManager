@@ -1,8 +1,6 @@
 ﻿using System.Runtime.InteropServices;
 using System.Windows;
-using System.Windows.Input;
 using System.Windows.Interop;
-using System.Windows.Shapes;
 
 namespace WPFDeskManager
 {
@@ -129,20 +127,10 @@ namespace WPFDeskManager
         /// </summary>
         /// <param name="sender"></param>
         /// <param name="e"></param>
-        private void ActionMouseLeftDown(object sender, MouseButtonEventArgs e)
+        private void ActionMouseLeftDown(IconBox iconBox, Point point)
         {
-            if (sender is not Path path)
-            {
-                return;
-            }
-
-            if (!Global.IconBoxes.TryGetValue(path.GetHashCode(), out IconBox? iconBox))
-            {
-                return;
-            }
-
             this.CurrentPath = iconBox;
-            this.CurrentLoc = e.GetPosition(this);
+            this.CurrentLoc = point;
         }
     }
 }

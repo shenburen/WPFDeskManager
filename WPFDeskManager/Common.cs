@@ -139,10 +139,13 @@ namespace WPFDeskManager
             iconBox.IconBoxInfo.CenterY = locNow.Y + offsetY;
             iconBox.IconBoxInfo.CenterX = locNow.X + offsetX;
 
-            Canvas.SetTop(iconBox.Hexagon, iconBox.IconBoxInfo.CenterY);
-            Canvas.SetLeft(iconBox.Hexagon, iconBox.IconBoxInfo.CenterX);
-            Canvas.SetTop(iconBox.IconImage, iconBox.IconBoxInfo.CenterY - iconBox.IconImage.Height / 2);
-            Canvas.SetLeft(iconBox.IconImage, iconBox.IconBoxInfo.CenterX - iconBox.IconImage.Width / 2);
+            Canvas.SetTop(iconBox.IconBoxInfo.Hexagon, iconBox.IconBoxInfo.CenterY);
+            Canvas.SetLeft(iconBox.IconBoxInfo.Hexagon, iconBox.IconBoxInfo.CenterX);
+            if (iconBox.IconBoxInfo.IconImage != null)
+            {
+                Canvas.SetTop(iconBox.IconBoxInfo.IconImage, iconBox.IconBoxInfo.CenterY - iconBox.IconBoxInfo.IconImage.Height / 2);
+                Canvas.SetLeft(iconBox.IconBoxInfo.IconImage, iconBox.IconBoxInfo.CenterX - iconBox.IconBoxInfo.IconImage.Width / 2);
+            }
         }
 
         /// <summary>
@@ -151,14 +154,14 @@ namespace WPFDeskManager
         /// <param name="iconBox">图标</param>
         public static void CreateHexagonSnap(IconBox iconBox)
         {
-            if (iconBox.SnapPoints.Count == 0)
+            if (iconBox.IconBoxInfo.SnapPoints.Count == 0)
             {
                 for (int i = 0; i < 6; i++)
                 {
                     double angle = Math.PI / 3 * i + Math.PI / 6;
                     double y = iconBox.IconBoxInfo.CenterY + (Config.HexagonRadius + 1) * Math.Cos(Math.PI / 6) * 2 * Math.Sin(angle);
                     double x = iconBox.IconBoxInfo.CenterX + (Config.HexagonRadius + 1) * Math.Cos(Math.PI / 6) * 2 * Math.Cos(angle);
-                    iconBox.SnapPoints.Add(new SnapPoint { Point = new System.Windows.Point(x, y) });
+                    iconBox.IconBoxInfo.SnapPoints.Add(new SnapPoint { Point = new System.Windows.Point(x, y) });
                 }
             }
             else
@@ -168,7 +171,30 @@ namespace WPFDeskManager
                     double angle = Math.PI / 3 * i + Math.PI / 6;
                     double y = iconBox.IconBoxInfo.CenterY + (Config.HexagonRadius + 1) * Math.Cos(Math.PI / 6) * 2 * Math.Sin(angle);
                     double x = iconBox.IconBoxInfo.CenterX + (Config.HexagonRadius + 1) * Math.Cos(Math.PI / 6) * 2 * Math.Cos(angle);
-                    iconBox.SnapPoints[i].Point = new System.Windows.Point(x, y);
+                    iconBox.IconBoxInfo.SnapPoints[i].Point = new System.Windows.Point(x, y);
+                }
+            }
+
+            // 更新自身关于父节点的吸附关系
+            if (!iconBox.IconBoxInfo.IsRoot && iconBox.IconBoxInfo?.Parent?.Self != null)
+            {
+                foreach (SnapPoint snap in iconBox.IconBoxInfo.Parent.SnapPoints)
+                {
+                    if (snap.IconBoxInfo == iconBox.IconBoxInfo)
+                    {
+                        int index = iconBox.IconBoxInfo.Parent.SnapPoints.IndexOf(snap);
+                        if (index > 2)
+                        {
+                            index -= 3;
+                        }
+                        else
+                        {
+                            index += 3;
+                        }
+
+                        iconBox.IconBoxInfo.SnapPoints[index].IconBoxInfo = snap.IconBoxInfo;
+                        break;
+                    }
                 }
             }
         }
@@ -205,7 +231,7 @@ namespace WPFDeskManager
 
                 bool isFinished = false;
                 double nearestDistance = double.MaxValue;
-                foreach (SnapPoint snap in item.Value.SnapPoints)
+                foreach (SnapPoint snap in item.Value.IconBoxInfo.SnapPoints)
                 {
                     if (snap.IsSnapped)
                     {

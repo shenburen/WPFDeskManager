@@ -1,4 +1,5 @@
-﻿using System.Windows;
+﻿using System.Windows.Controls;
+using System.Windows.Shapes;
 
 namespace WPFDeskManager
 {
@@ -36,6 +37,21 @@ namespace WPFDeskManager
         public bool IsRoot = false;
 
         /// <summary>
+        /// 六边形
+        /// </summary>
+        public Path? Hexagon;
+
+        /// <summary>
+        /// 图标
+        /// </summary>
+        public Image? IconImage;
+
+        /// <summary>
+        /// 吸附点
+        /// </summary>
+        public List<SnapPoint> SnapPoints = new List<SnapPoint>();
+
+        /// <summary>
         /// 实例对象
         /// </summary>
         public IconBox? Self;
@@ -64,6 +80,11 @@ namespace WPFDeskManager
         /// <summary>
         /// 吸附点
         /// </summary>
-        public Point Point { get; set; } = new Point();
+        public System.Windows.Point Point { get; set; } = new System.Windows.Point();
+
+        /// <summary>
+        /// 吸附对象
+        /// </summary>
+        public IconBoxInfo? IconBoxInfo;
     }
 }
