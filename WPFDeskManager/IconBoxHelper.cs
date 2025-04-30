@@ -268,6 +268,36 @@ namespace WPFDeskManager
         }
 
         /// <summary>
+        /// 清理自身的吸附关系
+        /// </summary>
+        /// <param name="self">自身</param>
+        public static void ClearIconSnapMap(IconBoxInfo self)
+        {
+            foreach (SnapPoint snap in self.SnapPoints)
+            {
+                if (snap.IsSnapped)
+                {
+                    if (snap.IconBoxInfo != null)
+                    {
+                        foreach (SnapPoint tar in snap.IconBoxInfo.SnapPoints)
+                        {
+                            if (tar.IconBoxInfo == self)
+                            {
+                                tar.IsSnapped = false;
+                                tar.IconBoxInfo = null;
+                            }
+                        }
+                    }
+
+                    snap.IsSnapped = false;
+                    snap.IconBoxInfo = null;
+                }
+            }
+
+            self.Parent?.Children.Remove(self);
+        }
+
+        /// <summary>
         /// 判断六边形是否有其它可吸附的六边形
         /// </summary>
         /// <param name="iconBox">图标</param>

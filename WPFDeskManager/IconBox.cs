@@ -318,14 +318,21 @@ namespace WPFDeskManager
         private void Path_MouseLeftButtonUp(object sender, MouseButtonEventArgs e)
         {
             DateTime now = DateTime.Now;
-            if ((now - this.LastClickTime).TotalMilliseconds <= 300 && System.IO.File.Exists(this.IconBoxInfo.TargetPath))
+            if ((now - this.LastClickTime).TotalMilliseconds <= Config.DoubleClickTime && System.IO.File.Exists(this.IconBoxInfo.TargetPath))
             {
                 ProcessStartInfo psi = new ProcessStartInfo
                 {
                     FileName = this.IconBoxInfo.TargetPath,
                     UseShellExecute = true,
                 };
-                Process.Start(psi);
+                try
+                {
+                    Process.Start(psi);
+                }
+                catch (Exception err)
+                {
+                    Debug.WriteLine(err.Message);
+                }
             }
             this.LastClickTime = now;
         }
@@ -340,23 +347,7 @@ namespace WPFDeskManager
             // 鼠标压下一个图标的时候，需要把图标和其父节点的吸附关系清空
             if (!this.IconBoxInfo.IsRoot && this.IconBoxInfo.Parent != null)
             {
-                foreach (SnapPoint snap in this.IconBoxInfo.Parent.SnapPoints)
-                {
-                    if (snap.IconBoxInfo == IconBoxInfo)
-                    {
-                        snap.IsSnapped = false;
-                        snap.IconBoxInfo = null;
-                    }
-                }
-                this.IconBoxInfo.Parent.Children.Remove(this.IconBoxInfo);
-
-
-                foreach (SnapPoint snap in this.IconBoxInfo.SnapPoints)
-                {
-                    snap.IsSnapped = false;
-                    snap.IconBoxInfo = null;
-                }
-                this.IconBoxInfo.Parent = null;
+                IconBoxHelper.ClearIconSnapMap(this.IconBoxInfo);
             }
 
             Point point = e.GetPosition(this.MainWindow);

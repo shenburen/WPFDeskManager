@@ -16,5 +16,10 @@
         /// 吸附距离
         /// </summary>
         public static int SnapDistance = 15;
+
+        /// <summary>
+        /// 双击事件间隔
+        /// </summary>
+        public static int DoubleClickTime = 300;
     }
 }
