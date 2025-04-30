@@ -6,7 +6,7 @@ using System.Windows.Media.Imaging;
 
 namespace WPFDeskManager
 {
-    internal class IconSerialization
+    internal class Serialization
     {
         public double CenterX { get; set; }
         public double CenterY { get; set; }
@@ -45,7 +45,7 @@ namespace WPFDeskManager
         }
 
         public List<SnapSerialization> SnapPoints { get; set; } = new();
-        public List<IconSerialization> Children { get; set; } = new();
+        public List<Serialization> Children { get; set; } = new();
     }
 
     internal class SnapSerialization
@@ -55,6 +55,6 @@ namespace WPFDeskManager
         public Point Point { get; set; } = new Point();
 
         [JsonIgnore]
-        public IconSerialization? IconBoxInfo { get; set; }
+        public Serialization? IconBoxInfo { get; set; }
     }
 }

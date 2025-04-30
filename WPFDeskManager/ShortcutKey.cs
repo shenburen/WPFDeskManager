@@ -3,6 +3,7 @@ using System.Runtime.InteropServices;
 using System.Windows;
 using System.Windows.Input;
 using System.Windows.Interop;
+using System.Windows.Media.Animation;
 
 namespace WPFDeskManager
 {
@@ -65,19 +66,44 @@ namespace WPFDeskManager
                 int id = wParam.ToInt32();
                 if (id == ACTIVE_MAIN_WINDOW && Global.MainWindow != null)
                 {
-                    // Global.MainWindow.Activate();
                     if (Global.MainWindow.Visibility == Visibility.Visible)
                     {
-                        Global.MainWindow.Visibility = Visibility.Collapsed;
+                        WindowTransition(1, 0, () =>
+                        {
+                            Global.MainWindow.Visibility = Visibility.Collapsed;
+                        });
                     }
                     else
                     {
                         Global.MainWindow.Visibility = Visibility.Visible;
+                        WindowTransition(0, 1);
                     }
                 }
                 handled = true;
             }
             return IntPtr.Zero;
+        }
+
+        /// <summary>
+        /// 窗体淡入淡出动画
+        /// </summary>
+        /// <param name="from">起点</param>
+        /// <param name="to">终点</param>
+        /// <param name="action">如果有想执行的其它动作</param>
+        private static void WindowTransition(double from, double to, Action? action = null)
+        {
+            DoubleAnimation fade = new DoubleAnimation
+            {
+                From = from,
+                To = to,
+                Duration = TimeSpan.FromMilliseconds(200),
+            };
+            fade.Completed += (object? sender, EventArgs e) =>
+            {
+                action?.Invoke();
+            };
+
+            Global.MainWindow?.BeginAnimation(Window.OpacityProperty, fade);
         }
     }
 }

@@ -4,9 +4,9 @@ using System.IO;
 
 namespace WPFDeskManager
 {
-    internal class IconSerializerHelper
+    internal class SerializerHelper
     {
-        public static void SaveToFile(string path, IconSerialization data)
+        public static void SaveToFile(string path, Serialization data)
         {
             var options = new JsonSerializerOptions
             {
@@ -18,7 +18,7 @@ namespace WPFDeskManager
             File.WriteAllText(path, json);
         }
 
-        public static IconSerialization LoadFromFile(string path)
+        public static Serialization LoadFromFile(string path)
         {
             var json = File.ReadAllText(path);
             var options = new JsonSerializerOptions
@@ -26,7 +26,7 @@ namespace WPFDeskManager
                 ReferenceHandler = ReferenceHandler.IgnoreCycles,
             };
 
-            return JsonSerializer.Deserialize<IconSerialization>(json, options)!;
+            return JsonSerializer.Deserialize<Serialization>(json, options)!;
         }
     }
 }
