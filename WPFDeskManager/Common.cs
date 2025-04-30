@@ -10,6 +10,7 @@ using System.Windows.Media.Imaging;
 using System.Windows.Resources;
 using System.Drawing;
 using System.Windows.Shapes;
+using System.Windows.Controls;
 
 namespace WPFDeskManager
 {
@@ -122,6 +123,115 @@ namespace WPFDeskManager
             {
                 return false;
             }
+        }
+
+        /// <summary>
+        /// 更新图标位置
+        /// </summary>
+        /// <param name="iconBox">图标</param>
+        /// <param name="locNow">新位置</param>
+        /// <param name="locOld">旧位置</param>
+        public static void ChangeIconBoxLoc(IconBox iconBox, System.Windows.Point locNow, System.Windows.Point locOld)
+        {
+            double offsetY = iconBox.IconBoxInfo.CenterY - locOld.Y;
+            double offsetX = iconBox.IconBoxInfo.CenterX - locOld.X;
+
+            iconBox.IconBoxInfo.CenterY = locNow.Y + offsetY;
+            iconBox.IconBoxInfo.CenterX = locNow.X + offsetX;
+
+            Canvas.SetTop(iconBox.Hexagon, iconBox.IconBoxInfo.CenterY);
+            Canvas.SetLeft(iconBox.Hexagon, iconBox.IconBoxInfo.CenterX);
+            Canvas.SetTop(iconBox.IconImage, iconBox.IconBoxInfo.CenterY - iconBox.IconImage.Height / 2);
+            Canvas.SetLeft(iconBox.IconImage, iconBox.IconBoxInfo.CenterX - iconBox.IconImage.Width / 2);
+        }
+
+        /// <summary>
+        /// 计算六边形的吸附点
+        /// </summary>
+        /// <param name="iconBox">图标</param>
+        public static void CreateHexagonSnap(IconBox iconBox)
+        {
+            if (iconBox.SnapPoints.Count == 0)
+            {
+                for (int i = 0; i < 6; i++)
+                {
+                    double angle = Math.PI / 3 * i + Math.PI / 6;
+                    double y = iconBox.IconBoxInfo.CenterY + (Config.HexagonRadius + 1) * Math.Cos(Math.PI / 6) * 2 * Math.Sin(angle);
+                    double x = iconBox.IconBoxInfo.CenterX + (Config.HexagonRadius + 1) * Math.Cos(Math.PI / 6) * 2 * Math.Cos(angle);
+                    iconBox.SnapPoints.Add(new SnapPoint { Point = new System.Windows.Point(x, y) });
+                }
+            }
+            else
+            {
+                for (int i = 0; i < 6; i++)
+                {
+                    double angle = Math.PI / 3 * i + Math.PI / 6;
+                    double y = iconBox.IconBoxInfo.CenterY + (Config.HexagonRadius + 1) * Math.Cos(Math.PI / 6) * 2 * Math.Sin(angle);
+                    double x = iconBox.IconBoxInfo.CenterX + (Config.HexagonRadius + 1) * Math.Cos(Math.PI / 6) * 2 * Math.Cos(angle);
+                    iconBox.SnapPoints[i].Point = new System.Windows.Point(x, y);
+                }
+            }
+        }
+
+        /// <summary>
+        /// 判断六边形是否有其它可吸附的六边形
+        /// </summary>
+        /// <param name="iconBox">图标</param>
+        /// <param name="point">鼠标位置</param>
+        /// <returns>是否存在可吸附的六边形</returns>
+        public static bool SnapToIconBox(IconBox iconBox, out System.Windows.Point point)
+        {
+            foreach (var item in Global.IconBoxes)
+            {
+                if (item.Value == iconBox)
+                {
+                    continue;
+                }
+                if (iconBox.IconBoxInfo.Children.Contains(item.Value.IconBoxInfo))
+                {
+                    continue;
+                }
+
+                double snapDistance = Math.Sqrt(Math.Pow(iconBox.IconBoxInfo.CenterX - item.Value.IconBoxInfo.CenterX, 2) +
+                                                Math.Pow(iconBox.IconBoxInfo.CenterY - item.Value.IconBoxInfo.CenterY, 2));
+
+                double minDistance = Config.HexagonRadius * Math.Cos(Math.PI / 6) * 2 - Config.SnapDistance;
+                double maxDistance = Config.HexagonRadius * Math.Cos(Math.PI / 6) * 2 + Config.SnapDistance;
+
+                if (snapDistance < minDistance || snapDistance > maxDistance)
+                {
+                    continue;
+                }
+
+                bool isFinished = false;
+                double nearestDistance = double.MaxValue;
+                foreach (SnapPoint snap in item.Value.SnapPoints)
+                {
+                    if (snap.IsSnapped)
+                    {
+                        continue;
+                    }
+
+                    double distance = Math.Sqrt(Math.Pow(iconBox.IconBoxInfo.CenterX - snap.Point.X, 2) +
+                                                Math.Pow(iconBox.IconBoxInfo.CenterY - snap.Point.Y, 2));
+
+                    if (distance < nearestDistance)
+                    {
+                        point = snap.Point;
+                        isFinished = true;
+                        nearestDistance = distance;
+                    }
+                }
+
+                if (!isFinished)
+                {
+                    continue;
+                }
+
+                return true;
+            }
+
+            return false;
         }
 
         /// <summary>

@@ -33,7 +33,22 @@ namespace WPFDeskManager
         /// <summary>
         /// 是否是根节点
         /// </summary>
-        public bool IsRoot { get; set; } = false;
+        public bool IsRoot = false;
+
+        /// <summary>
+        /// 实例对象
+        /// </summary>
+        public IconBox? Self;
+
+        /// <summary>
+        /// 父节点
+        /// </summary>
+        public IconBoxInfo? Parent;
+
+        /// <summary>
+        /// 子节点
+        /// </summary>
+        public List<IconBoxInfo> Children = new List<IconBoxInfo>();
     }
 
     /// <summary>

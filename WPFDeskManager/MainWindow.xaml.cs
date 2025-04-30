@@ -36,11 +36,18 @@ namespace WPFDeskManager
         private static extern bool SetWindowPos(IntPtr hWnd, IntPtr hWndInsertAfter, int X, int Y, int cx, int cy, uint uFlags);
         #endregion
 
+        /// <summary>
+        /// 构造函数
+        /// </summary>
         public MainWindow()
         {
             InitializeComponent();
         }
 
+        /// <summary>
+        /// 窗口初始化完成后
+        /// </summary>
+        /// <param name="e"></param>
         protected override void OnSourceInitialized(EventArgs e)
         {
             base.OnSourceInitialized(e);
@@ -57,6 +64,10 @@ namespace WPFDeskManager
             // SetWindowPos(hwnd, new IntPtr(-1), 0, 0, 0, 0, 0);
         }
 
+        /// <summary>
+        /// 窗口内容渲染完成后
+        /// </summary>
+        /// <param name="e"></param>
         protected override void OnContentRendered(EventArgs e)
         {
             base.OnContentRendered(e);
@@ -64,8 +75,8 @@ namespace WPFDeskManager
 
             IconBoxInfo iconBoxInfo = new IconBoxInfo
             {
-                CenterX = this.Width / 2,
                 CenterY = this.Height / 2,
+                CenterX = this.Width / 2,
                 IconType = 1,
                 SvgName = "pack://application:,,,/Assets/icon-金牛座.svg",
                 IsRoot = true,
@@ -73,12 +84,51 @@ namespace WPFDeskManager
             IconBox.CreateIconBox(this, this.ActionMouseLeftDown, iconBoxInfo);
         }
 
+        /// <summary>
+        /// 窗口关闭时
+        /// </summary>
+        /// <param name="e"></param>
         protected override void OnClosed(EventArgs e)
         {
             MouseEvent.Unhook();
             base.OnClosed(e);
         }
 
+        /// <summary>
+        /// 鼠标移动事件
+        /// </summary>
+        /// <param name="loc">鼠标位置</param>
+        private void ActionMouseMove(Point loc)
+        {
+            if (this.CurrentPath == null)
+            {
+                return;
+            }
+
+            this.CurrentPath.Update(loc, this.CurrentLoc);
+            this.CurrentLoc = loc;
+        }
+
+        /// <summary>
+        /// 鼠标左键抬起事件
+        /// </summary>
+        /// <param name="loc">鼠标位置</param>
+        private void ActionMouseLeftUp(Point loc)
+        {
+            if (this.CurrentPath == null)
+            {
+                return;
+            }
+
+            this.CurrentPath.Updated(loc, this.CurrentLoc);
+            this.CurrentPath = null;
+        }
+
+        /// <summary>
+        /// 鼠标左键按下事件
+        /// </summary>
+        /// <param name="sender"></param>
+        /// <param name="e"></param>
         private void ActionMouseLeftDown(object sender, MouseButtonEventArgs e)
         {
             if (sender is not Path path)
@@ -93,28 +143,6 @@ namespace WPFDeskManager
 
             this.CurrentPath = iconBox;
             this.CurrentLoc = e.GetPosition(this);
-        }
-
-        private void ActionMouseLeftUp(Point loc)
-        {
-            if (this.CurrentPath == null)
-            {
-                return;
-            }
-
-            this.CurrentPath.Updated(loc);
-            this.CurrentPath = null;
-        }
-
-        private void ActionMouseMove(Point loc)
-        {
-            if (this.CurrentPath == null)
-            {
-                return;
-            }
-
-            this.CurrentPath.Update(loc, this.CurrentLoc);
-            this.CurrentLoc = loc;
         }
     }
 }

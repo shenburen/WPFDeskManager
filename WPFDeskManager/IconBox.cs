@@ -14,17 +14,17 @@ namespace WPFDeskManager
         /// <summary>
         /// 六边形
         /// </summary>
-        private Path Hexagon;
+        public Path Hexagon;
 
         /// <summary>
         /// 图标
         /// </summary>
-        private Image IconImage;
+        public Image IconImage;
 
         /// <summary>
         /// 吸附点
         /// </summary>
-        private List<SnapPoint> SnapPoints = new List<SnapPoint>();
+        public List<SnapPoint> SnapPoints = new List<SnapPoint>();
 
         /// <summary>
         /// 上次点击时间
@@ -49,7 +49,7 @@ namespace WPFDeskManager
         /// <summary>
         /// 图标配置
         /// </summary>
-        private IconBoxInfo IconBoxInfo;
+        public IconBoxInfo IconBoxInfo;
 
         /// <summary>
         /// 创建图标框
@@ -60,6 +60,7 @@ namespace WPFDeskManager
         public static void CreateIconBox(MainWindow window, Action<object, MouseButtonEventArgs> mouseLeftButtonDown, IconBoxInfo iconBoxInfo)
         {
             IconBox iconBox = new IconBox(window, mouseLeftButtonDown, iconBoxInfo);
+            iconBoxInfo.Self = iconBox;
             Global.IconBoxes.Add(iconBox.Hexagon.GetHashCode(), iconBox);
         }
 
@@ -97,10 +98,7 @@ namespace WPFDeskManager
             this.Hexagon.MouseEnter += Path_MouseEnter;
             this.Hexagon.MouseLeave += Path_MouseLeave;
             this.Hexagon.MouseLeftButtonUp += Path_MouseLeftButtonUp;
-            this.Hexagon.MouseLeftButtonDown += (s, e) =>
-            {
-                this.MouseLeftButtonDown.Invoke(s, e);
-            };
+            this.Hexagon.MouseLeftButtonDown += Path_MouseLeftButtonDown;
             this.MainWindow.MainPanel.Children.Add(this.Hexagon);
 
             // 图标
@@ -124,7 +122,7 @@ namespace WPFDeskManager
             Canvas.SetLeft(this.IconImage, this.IconBoxInfo.CenterX - this.IconImage.Width / 2);
             this.MainWindow.MainPanel.Children.Add(this.IconImage);
 
-            this.CreateHexagonSnap();
+            Common.CreateHexagonSnap(this);
             this.CreateContextMenu();
         }
 
@@ -135,110 +133,43 @@ namespace WPFDeskManager
         /// <param name="locOld">鼠标之前的位置</param>
         public void Update(Point locNow, Point locOld)
         {
-            double offsetY = this.IconBoxInfo.CenterY - locOld.Y;
-            double offsetX = this.IconBoxInfo.CenterX - locOld.X;
+            Common.ChangeIconBoxLoc(this, locNow, locOld);
 
-            this.IconBoxInfo.CenterY = locNow.Y + offsetY;
-            this.IconBoxInfo.CenterX = locNow.X + offsetX;
-
-            Canvas.SetTop(this.Hexagon, this.IconBoxInfo.CenterY);
-            Canvas.SetLeft(this.Hexagon, this.IconBoxInfo.CenterX);
-            Canvas.SetTop(this.IconImage, this.IconBoxInfo.CenterY - this.IconImage.Height / 2);
-            Canvas.SetLeft(this.IconImage, this.IconBoxInfo.CenterX - this.IconImage.Width / 2);
+            foreach (IconBoxInfo child in this.IconBoxInfo.Children)
+            {
+                if (child.Self == null)
+                {
+                    continue;
+                }
+                Common.ChangeIconBoxLoc(child.Self, locNow, locOld);
+            }
         }
 
         /// <summary>
         /// 结束更新时更新一下自身信息
         /// </summary>
         /// <param name="locNow">鼠标当前的位置</param>
-        public void Updated(Point locNow)
+        /// <param name="locOld">鼠标之前的位置</param>
+        public void Updated(Point locNow, Point locOld)
         {
-            if (this.SnapToIconBox(out locNow))
+            if (!this.IconBoxInfo.IsRoot && this.IconBoxInfo.Parent == null && Common.SnapToIconBox(this, out locNow))
             {
                 this.IconBoxInfo.CenterY = locNow.Y;
                 this.IconBoxInfo.CenterX = locNow.X;
             }
 
-            Canvas.SetTop(this.Hexagon, this.IconBoxInfo.CenterY);
-            Canvas.SetLeft(this.Hexagon, this.IconBoxInfo.CenterX);
-            Canvas.SetTop(this.IconImage, this.IconBoxInfo.CenterY - this.IconImage.Height / 2);
-            Canvas.SetLeft(this.IconImage, this.IconBoxInfo.CenterX - this.IconImage.Width / 2);
-            this.CreateHexagonSnap();
-        }
+            Common.ChangeIconBoxLoc(this, locNow, locOld);
+            Common.CreateHexagonSnap(this);
 
-        /// <summary>
-        /// 计算六边形的吸附点
-        /// </summary>
-        /// <returns></returns>
-        private void CreateHexagonSnap()
-        {
-            List<SnapPoint> snapPoints = new List<SnapPoint>();
-
-            for (int i = 0; i < 6; i++)
+            foreach (IconBoxInfo child in this.IconBoxInfo.Children)
             {
-                double angle = Math.PI / 3 * i + Math.PI / 6;
-                double y = this.IconBoxInfo.CenterY + Config.HexagonRadius * Math.Cos(Math.PI / 6) * 2 * Math.Sin(angle);
-                double x = this.IconBoxInfo.CenterX + Config.HexagonRadius * Math.Cos(Math.PI / 6) * 2 * Math.Cos(angle);
-                snapPoints.Add(new SnapPoint { Point = new Point(x, y) });
+                if (child.Self == null)
+                {
+                    continue;
+                }
+                Common.ChangeIconBoxLoc(child.Self, locNow, locOld);
+                Common.CreateHexagonSnap(child.Self);
             }
-
-            this.SnapPoints = snapPoints;
-        }
-
-        /// <summary>
-        /// 判断六边形是否有其它可吸附的六边形
-        /// </summary>
-        /// <param name="point">鼠标位置</param>
-        /// <returns>是否存在可吸附的六边形</returns>
-        private bool SnapToIconBox(out Point point)
-        {
-            foreach (var item in Global.IconBoxes)
-            {
-                if (item.Value == this)
-                {
-                    continue;
-                }
-
-                double snapDistance = Math.Sqrt(Math.Pow(this.IconBoxInfo.CenterX - item.Value.IconBoxInfo.CenterX, 2) +
-                                                Math.Pow(this.IconBoxInfo.CenterY - item.Value.IconBoxInfo.CenterY, 2));
-
-                double minDistance = Config.HexagonRadius * Math.Cos(Math.PI / 6) * 2 - Config.SnapDistance;
-                double maxDistance = Config.HexagonRadius * Math.Cos(Math.PI / 6) * 2 + Config.SnapDistance;
-
-                if (snapDistance < minDistance || snapDistance > maxDistance)
-                {
-                    continue;
-                }
-
-                bool isFinished = false;
-                double nearestDistance = double.MaxValue;
-                foreach (SnapPoint snap in item.Value.SnapPoints)
-                {
-                    if (snap.IsSnapped)
-                    {
-                        continue;
-                    }
-
-                    double distance = Math.Sqrt(Math.Pow(this.IconBoxInfo.CenterX - snap.Point.X, 2) +
-                                                Math.Pow(this.IconBoxInfo.CenterY - snap.Point.Y, 2));
-
-                    if (distance < nearestDistance)
-                    {
-                        point = snap.Point;
-                        isFinished = true;
-                        nearestDistance = distance;
-                    }
-                }
-
-                if (!isFinished)
-                {
-                    continue;
-                }
-
-                return true;
-            }
-
-            return false;
         }
 
         /// <summary>
@@ -264,7 +195,7 @@ namespace WPFDeskManager
                 this.Popup.AddMenuItem(switchIcon, "水瓶座", this.SwitchHexagonIcon);
                 this.Popup.AddMenuItem(switchIcon, "双鱼座", this.SwitchHexagonIcon);
 
-                this.Popup.AddMenuItem("添加根", (object sender, RoutedEventArgs e) =>
+                this.Popup.AddMenuItem("添加", (object sender, RoutedEventArgs e) =>
                 {
                     IconBoxInfo iconBoxInfo = new IconBoxInfo
                     {
@@ -319,14 +250,26 @@ namespace WPFDeskManager
 
             foreach (string file in files)
             {
-                IconBoxInfo iconBoxInfo = new IconBoxInfo
+                foreach (SnapPoint snap in this.SnapPoints)
                 {
-                    CenterX = this.MainWindow.Width / 2,
-                    CenterY = this.MainWindow.Height / 2,
-                    IconType = 2,
-                    TargetPath = file,
-                };
-                CreateIconBox(this.MainWindow, this.MouseLeftButtonDown, iconBoxInfo);
+                    if (!snap.IsSnapped)
+                    {
+                        snap.IsSnapped = true;
+
+                        IconBoxInfo iconBoxInfo = new IconBoxInfo
+                        {
+                            CenterY = snap.Point.Y,
+                            CenterX = snap.Point.X,
+                            IconType = 2,
+                            TargetPath = file,
+                            Parent = this.IconBoxInfo,
+                        };
+                        this.IconBoxInfo.Children.Add(iconBoxInfo);
+
+                        CreateIconBox(this.MainWindow, this.MouseLeftButtonDown, iconBoxInfo);
+                        break;
+                    }
+                }
             }
         }
 
@@ -371,6 +314,17 @@ namespace WPFDeskManager
                 Process.Start(psi);
             }
             this.LastClickTime = now;
+        }
+
+        /// <summary>
+        /// 鼠标左键压下事件
+        /// </summary>
+        /// <param name="sender"></param>
+        /// <param name="e"></param>
+        private void Path_MouseLeftButtonDown(object sender, MouseButtonEventArgs e)
+        {
+            // TODO: 这里处理一些东西
+            this.MouseLeftButtonDown.Invoke(sender, e);
         }
     }
 }
