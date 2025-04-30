@@ -46,6 +46,7 @@
     <Resource Include="Assets\icon-射手座.svg" />
     <Resource Include="Assets\icon-巨蟹座.svg" />
     <Resource Include="Assets\icon-摩羯座.svg" />
+    <Resource Include="Assets\icon-文件夹.svg" />
     <Resource Include="Assets\icon-水瓶座.svg" />
     <Resource Include="Assets\icon-牡羊座.svg" />
     <Resource Include="Assets\icon-狮子座.svg" />

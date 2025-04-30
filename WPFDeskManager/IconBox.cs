@@ -241,6 +241,10 @@ namespace WPFDeskManager
                     {
                         remove();
                     }
+                    else
+                    {
+                        Debug.WriteLine("最后一个根节点无法删除！");
+                    }
                 }
                 else if (!this.IconBoxInfo.IsRoot)
                 {
@@ -365,16 +369,37 @@ namespace WPFDeskManager
         private void Path_MouseLeftButtonUp(object sender, MouseButtonEventArgs e)
         {
             DateTime now = DateTime.Now;
-            if ((now - this.LastClickTime).TotalMilliseconds <= Config.DoubleClickTime && System.IO.File.Exists(this.IconBoxInfo.TargetPath))
+            if ((now - this.LastClickTime).TotalMilliseconds <= Config.DoubleClickTime)
             {
-                ProcessStartInfo psi = new ProcessStartInfo
+                ProcessStartInfo? psi = null;
+                if (System.IO.Directory.Exists(this.IconBoxInfo.TargetPath))
                 {
-                    FileName = this.IconBoxInfo.TargetPath,
-                    UseShellExecute = true,
-                };
+                    psi = new ProcessStartInfo
+                    {
+                        FileName = "explorer.exe",
+                        Arguments = this.IconBoxInfo.TargetPath,
+                        UseShellExecute = true,
+                    };
+                }
+                else if (System.IO.File.Exists(this.IconBoxInfo.TargetPath))
+                {
+                    psi = new ProcessStartInfo
+                    {
+                        FileName = this.IconBoxInfo.TargetPath,
+                        UseShellExecute = true,
+                    };
+                }
+                else
+                {
+                    Debug.WriteLine("路径不存在！");
+                }
+
                 try
                 {
-                    Process.Start(psi);
+                    if (psi != null)
+                    {
+                        Process.Start(psi);
+                    }
                 }
                 catch (Exception err)
                 {

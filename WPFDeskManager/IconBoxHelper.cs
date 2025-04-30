@@ -92,31 +92,39 @@ namespace WPFDeskManager
                 Icon? icon = null;
                 string ext = System.IO.Path.GetExtension(path).ToLower();
 
-                if (ext == ".lnk")
+                if (System.IO.Directory.Exists(path))
                 {
-                    WshShell shell = new WshShell();
-                    IWshShortcut shortcut = (IWshShortcut)shell.CreateShortcut(path);
+                    targetPath = path;
+                    iconImage = GetSvgFromResources("pack://application:,,,/Assets/icon-文件夹.svg");
+                }
+                else if (System.IO.File.Exists(path))
+                {
+                    if (ext == ".lnk")
+                    {
+                        WshShell shell = new WshShell();
+                        IWshShortcut shortcut = (IWshShortcut)shell.CreateShortcut(path);
 
-                    if (!System.IO.File.Exists(path))
+                        if (!System.IO.File.Exists(path))
+                        {
+                            return false;
+                        }
+
+                        targetPath = shortcut.TargetPath;
+                        icon = Icon.ExtractAssociatedIcon(shortcut.TargetPath);
+                    }
+                    else
+                    {
+                        targetPath = path;
+                        icon = Icon.ExtractAssociatedIcon(path);
+                    }
+
+                    if (icon == null)
                     {
                         return false;
                     }
 
-                    targetPath = shortcut.TargetPath;
-                    icon = Icon.ExtractAssociatedIcon(shortcut.TargetPath);
+                    iconImage = Imaging.CreateBitmapSourceFromHIcon(icon.Handle, Int32Rect.Empty, BitmapSizeOptions.FromWidthAndHeight(icon.Width, icon.Height));
                 }
-                else
-                {
-                    targetPath = path;
-                    icon = Icon.ExtractAssociatedIcon(path);
-                }
-
-                if (icon == null)
-                {
-                    return false;
-                }
-
-                iconImage = Imaging.CreateBitmapSourceFromHIcon(icon.Handle, Int32Rect.Empty, BitmapSizeOptions.FromWidthAndHeight(icon.Width, icon.Height));
 
                 return true;
             }

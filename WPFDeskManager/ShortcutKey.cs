@@ -1,4 +1,5 @@
 ﻿using System.Runtime.InteropServices;
+using System.Windows;
 using System.Windows.Input;
 using System.Windows.Interop;
 
@@ -63,7 +64,15 @@ namespace WPFDeskManager
                 int id = wParam.ToInt32();
                 if (id == ACTIVE_MAIN_WINDOW && Global.MainWindow != null)
                 {
-                    Global.MainWindow.Activate();
+                    // Global.MainWindow.Activate();
+                    if (Global.MainWindow.Visibility == Visibility.Visible)
+                    {
+                        Global.MainWindow.Visibility = Visibility.Collapsed;
+                    }
+                    else
+                    {
+                        Global.MainWindow.Visibility = Visibility.Visible;
+                    }
                 }
                 handled = true;
             }

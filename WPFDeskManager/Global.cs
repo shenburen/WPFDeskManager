@@ -1,5 +1,13 @@
 ﻿namespace WPFDeskManager
 {
+    // 待办事项：
+    // 本地持久化
+    // 根节点点击隐藏所有图标
+    // 系统通知
+    // 悬停提示
+    // 开机自启动
+    // 解链
+    // 设置界面
     internal class Global
     {
         /// <summary>
