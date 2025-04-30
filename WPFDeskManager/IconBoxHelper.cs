@@ -234,6 +234,11 @@ namespace WPFDeskManager
         /// <param name="self">自身</param>
         public static void UpdateIconSnapMap(IconBoxInfo target, IconBoxInfo self)
         {
+            if (target == self)
+            {
+                return;
+            }
+
             foreach (SnapPoint snap in target.SnapPoints)
             {
                 if (snap.IsSnapped)
@@ -311,53 +316,68 @@ namespace WPFDeskManager
         /// <param name="iconBox">图标</param>
         /// <param name="point">鼠标位置</param>
         /// <returns>是否存在可吸附的六边形</returns>
-        public static bool SnapToIconBox(IconBox iconBox, out System.Windows.Point point)
+        public static bool SnapToIconBox(IconBoxInfo iconBoxInfo, out System.Windows.Point locNow, System.Windows.Point locOld)
         {
-            foreach (var item in Global.IconBoxes)
+            double offsetY = iconBoxInfo.CenterY - locOld.Y;
+            double offsetX = iconBoxInfo.CenterX - locOld.X;
+
+            double newPosY = locNow.Y + offsetY;
+            double newPosX = locNow.X + offsetX;
+
+            foreach (var item in Global.IconBoxInfos)
             {
-                if (item.Value == iconBox)
-                {
-                    continue;
-                }
-                if (iconBox.IconBoxInfo.Children.Contains(item.Value.IconBoxInfo))
+                if (item.Value == iconBoxInfo)
                 {
                     continue;
                 }
 
-                double snapDistance = Math.Sqrt(Math.Pow(iconBox.IconBoxInfo.CenterX - item.Value.IconBoxInfo.CenterX, 2) +
-                                                Math.Pow(iconBox.IconBoxInfo.CenterY - item.Value.IconBoxInfo.CenterY, 2));
+                double snapDistance = Math.Sqrt(Math.Pow(newPosY - item.Value.CenterY, 2) +
+                                                Math.Pow(newPosX - item.Value.CenterX, 2));
 
-                double minDistance = Config.HexagonRadius * Math.Cos(Math.PI / 6) * 2 - Config.SnapDistance;
                 double maxDistance = Config.HexagonRadius * Math.Cos(Math.PI / 6) * 2 + Config.SnapDistance;
 
-                if (snapDistance < minDistance || snapDistance > maxDistance)
+                if (snapDistance > maxDistance)
                 {
                     continue;
                 }
 
-                bool isFinished = false;
+                // 找到了最近的图标
+                int index = -1;
                 double nearestDistance = double.MaxValue;
-                foreach (SnapPoint snap in item.Value.IconBoxInfo.SnapPoints)
+                foreach (SnapPoint snap in item.Value.SnapPoints)
                 {
                     if (snap.IsSnapped)
                     {
                         continue;
                     }
 
-                    double distance = Math.Sqrt(Math.Pow(iconBox.IconBoxInfo.CenterX - snap.Point.X, 2) +
-                                                Math.Pow(iconBox.IconBoxInfo.CenterY - snap.Point.Y, 2));
+                    double distance = Math.Sqrt(Math.Pow(newPosY - snap.Point.Y, 2) +
+                                                Math.Pow(newPosX - snap.Point.X, 2));
 
                     if (distance < nearestDistance)
                     {
-                        point = snap.Point;
-                        isFinished = true;
+                        index = item.Value.SnapPoints.IndexOf(snap);
                         nearestDistance = distance;
                     }
                 }
 
-                if (!isFinished)
+                if (index < 0)
                 {
                     continue;
+                }
+
+                SnapPoint snapPoint = item.Value.SnapPoints[index];
+                locNow = new System.Windows.Point(snapPoint.Point.X - offsetX, snapPoint.Point.Y - offsetY);
+
+                if (item.Value.IsRoot)
+                {
+                    iconBoxInfo.Parent = item.Value;
+                    item.Value.Children.Add(iconBoxInfo);
+                }
+                else
+                {
+                    iconBoxInfo.Parent = item.Value.Parent;
+                    item.Value.Parent?.Children.Add(iconBoxInfo);
                 }
 
                 return true;

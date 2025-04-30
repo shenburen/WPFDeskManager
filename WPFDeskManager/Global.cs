@@ -10,7 +10,7 @@
         /// <summary>
         /// 图标列表
         /// </summary>
-        public static Dictionary<int, IconBox> IconBoxes = new Dictionary<int, IconBox>();
+        public static Dictionary<int, IconBoxInfo> IconBoxInfos = new Dictionary<int, IconBoxInfo>();
 
         /// <summary>
         /// 全局初始化

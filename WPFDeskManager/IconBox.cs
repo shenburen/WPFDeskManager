@@ -48,7 +48,7 @@ namespace WPFDeskManager
             iconBoxInfo.Self = iconBox;
             if (iconBox.IconBoxInfo.Hexagon != null)
             {
-                Global.IconBoxes.Add(iconBox.IconBoxInfo.Hexagon.GetHashCode(), iconBox);
+                Global.IconBoxInfos.Add(iconBox.IconBoxInfo.Hexagon.GetHashCode(), iconBoxInfo);
             }
         }
 
@@ -153,10 +153,10 @@ namespace WPFDeskManager
                 // 判断是否具备吸附关系
                 if (!this.IconBoxInfo.IsRoot)
                 {
-                    // TOTO: 有问题，等会改。
-                    IconBoxHelper.SnapToIconBox(this, out locNow);
+                    IconBoxHelper.SnapToIconBox(this.IconBoxInfo, out locNow, locOld);
                 }
             }
+            // 移动距离太小的话，恢复原状，不做任何处理 
             else
             {
                 locNow = locOld;
@@ -164,6 +164,16 @@ namespace WPFDeskManager
 
             IconBoxHelper.ChangeIconBoxLoc(this.IconBoxInfo, locNow, locOld, true);
             IconBoxHelper.CreateHexagonSnap(this.IconBoxInfo);
+
+            if (!this.IconBoxInfo.IsRoot && this.IconBoxInfo.Parent != null)
+            {
+                IconBoxHelper.UpdateIconSnapMap(this.IconBoxInfo.Parent, this.IconBoxInfo);
+
+                foreach (IconBoxInfo target in this.IconBoxInfo.Parent.Children)
+                {
+                    IconBoxHelper.UpdateIconSnapMap(target, this.IconBoxInfo);
+                }
+            }
 
             foreach (IconBoxInfo child in this.IconBoxInfo.Children)
             {
@@ -216,7 +226,7 @@ namespace WPFDeskManager
             {
                 if (this.IconBoxInfo.Hexagon != null)
                 {
-                    Global.IconBoxes.Remove(this.IconBoxInfo.Hexagon.GetHashCode());
+                    Global.IconBoxInfos.Remove(this.IconBoxInfo.Hexagon.GetHashCode());
                 }
                 this.MainWindow.MainPanel.Children.Remove(this.IconBoxInfo.Hexagon);
                 this.MainWindow.MainPanel.Children.Remove(this.IconBoxInfo.IconImage);
