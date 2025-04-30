@@ -143,7 +143,7 @@ namespace WPFDeskManager
             double distance = Math.Sqrt(Math.Pow(locNow.X - locOld.X, 2) + Math.Pow(locNow.Y - locOld.Y, 2));
 
             // 移动距离过大的时候，把图标的吸附关系清空，防止误触
-            if (distance > Config.OffMapDistance)
+            if (distance > Config.OffMapDistance || this.IconBoxInfo.IsRoot || this.IconBoxInfo.Parent == null)
             {
                 if (!this.IconBoxInfo.IsRoot && this.IconBoxInfo.Parent != null)
                 {
@@ -224,12 +224,29 @@ namespace WPFDeskManager
             }
             this.Popup.AddMenuItem("删除", (object sender, RoutedEventArgs e) =>
             {
-                if (this.IconBoxInfo.Hexagon != null)
+                Action remove = () =>
                 {
-                    Global.IconBoxInfos.Remove(this.IconBoxInfo.Hexagon.GetHashCode());
+                    if (this.IconBoxInfo.Hexagon != null)
+                    {
+                        Global.IconBoxInfos.Remove(this.IconBoxInfo.Hexagon.GetHashCode());
+                    }
+                    this.MainWindow.MainPanel.Children.Remove(this.IconBoxInfo.Hexagon);
+                    this.MainWindow.MainPanel.Children.Remove(this.IconBoxInfo.IconImage);
+                };
+
+                if (this.IconBoxInfo.IsRoot && this.IconBoxInfo.Children.Count == 0)
+                {
+                    Dictionary<int, IconBoxInfo> list = Global.IconBoxInfos.Where(info => info.Value.IsRoot).ToDictionary(info => info.Key, info => info.Value);
+                    if (list.Count > 1)
+                    {
+                        remove();
+                    }
                 }
-                this.MainWindow.MainPanel.Children.Remove(this.IconBoxInfo.Hexagon);
-                this.MainWindow.MainPanel.Children.Remove(this.IconBoxInfo.IconImage);
+                else if (!this.IconBoxInfo.IsRoot)
+                {
+                    IconBoxHelper.ClearIconSnapMap(this.IconBoxInfo);
+                    remove();
+                }
             });
 
             if (this.IconBoxInfo.Hexagon != null)
