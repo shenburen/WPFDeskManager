@@ -285,23 +285,27 @@ namespace WPFDeskManager
                     CenterX = snap.Point.X,
                     IconType = 2,
                     TargetPath = file,
-                    Parent = this.IconBoxInfo,
                 };
                 CreateIconBox(this.MainWindow, this.MouseLeftButtonDown, iconBoxInfo);
 
                 if (this.IconBoxInfo.IsRoot)
                 {
+                    iconBoxInfo.Parent = this.IconBoxInfo;
                     this.IconBoxInfo.Children.Add(iconBoxInfo);
                     IconBoxHelper.UpdateIconSnapMap(this.IconBoxInfo, iconBoxInfo);
                 }
                 else
                 {
+                    iconBoxInfo.Parent = this.IconBoxInfo.Parent;
                     this.IconBoxInfo.Parent?.Children.Add(iconBoxInfo);
                 }
 
-                foreach (IconBoxInfo target in iconBoxInfo.Parent.Children)
+                if (iconBoxInfo.Parent != null)
                 {
-                    IconBoxHelper.UpdateIconSnapMap(target, iconBoxInfo);
+                    foreach (IconBoxInfo target in iconBoxInfo.Parent.Children)
+                    {
+                        IconBoxHelper.UpdateIconSnapMap(target, iconBoxInfo);
+                    }
                 }
             }
         }
