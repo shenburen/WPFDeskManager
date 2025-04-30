@@ -15,6 +15,6 @@
         /// <summary>
         /// 吸附距离
         /// </summary>
-        public static int SnapDistance = 10;
+        public static int SnapDistance = 15;
     }
 }

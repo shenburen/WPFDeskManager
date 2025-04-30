@@ -59,7 +59,7 @@ namespace WPFDeskManager
             SetWindowLong(hwnd, GWL_EXSTYLE, exStyle);
 
             // 将窗口设置为最顶层
-            // SetWindowPos(hwnd, new IntPtr(-1), 0, 0, 0, 0, 0);
+            SetWindowPos(hwnd, new IntPtr(-1), 0, 0, 0, 0, 0);
         }
 
         /// <summary>

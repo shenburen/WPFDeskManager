@@ -11,6 +11,7 @@ using System.Windows.Resources;
 using System.Drawing;
 using System.Windows.Shapes;
 using System.Windows.Controls;
+using System.Diagnostics;
 
 namespace WPFDeskManager
 {
@@ -128,40 +129,41 @@ namespace WPFDeskManager
         /// <summary>
         /// 更新图标位置
         /// </summary>
-        /// <param name="iconBox">图标</param>
+        /// <param name="iconBoxInfo">图标信息</param>
         /// <param name="locNow">新位置</param>
         /// <param name="locOld">旧位置</param>
-        public static void ChangeIconBoxLoc(IconBox iconBox, System.Windows.Point locNow, System.Windows.Point locOld)
+        public static void ChangeIconBoxLoc(IconBoxInfo iconBoxInfo, System.Windows.Point locNow, System.Windows.Point locOld)
         {
-            double offsetY = iconBox.IconBoxInfo.CenterY - locOld.Y;
-            double offsetX = iconBox.IconBoxInfo.CenterX - locOld.X;
+            double offsetY = iconBoxInfo.CenterY - locOld.Y;
+            double offsetX = iconBoxInfo.CenterX - locOld.X;
 
-            iconBox.IconBoxInfo.CenterY = locNow.Y + offsetY;
-            iconBox.IconBoxInfo.CenterX = locNow.X + offsetX;
+            iconBoxInfo.CenterY = locNow.Y + offsetY;
+            iconBoxInfo.CenterX = locNow.X + offsetX;
 
-            Canvas.SetTop(iconBox.IconBoxInfo.Hexagon, iconBox.IconBoxInfo.CenterY);
-            Canvas.SetLeft(iconBox.IconBoxInfo.Hexagon, iconBox.IconBoxInfo.CenterX);
-            if (iconBox.IconBoxInfo.IconImage != null)
+            Canvas.SetTop(iconBoxInfo.Hexagon, iconBoxInfo.CenterY);
+            Canvas.SetLeft(iconBoxInfo.Hexagon, iconBoxInfo.CenterX);
+            if (iconBoxInfo.IconImage != null)
             {
-                Canvas.SetTop(iconBox.IconBoxInfo.IconImage, iconBox.IconBoxInfo.CenterY - iconBox.IconBoxInfo.IconImage.Height / 2);
-                Canvas.SetLeft(iconBox.IconBoxInfo.IconImage, iconBox.IconBoxInfo.CenterX - iconBox.IconBoxInfo.IconImage.Width / 2);
+                Canvas.SetTop(iconBoxInfo.IconImage, iconBoxInfo.CenterY - iconBoxInfo.IconImage.Height / 2);
+                Canvas.SetLeft(iconBoxInfo.IconImage, iconBoxInfo.CenterX - iconBoxInfo.IconImage.Width / 2);
             }
         }
 
         /// <summary>
         /// 计算六边形的吸附点
         /// </summary>
-        /// <param name="iconBox">图标</param>
-        public static void CreateHexagonSnap(IconBox iconBox)
+        /// <param name="iconBoxInfo">图标信息</param>
+        public static void CreateHexagonSnap(IconBoxInfo iconBoxInfo)
         {
-            if (iconBox.IconBoxInfo.SnapPoints.Count == 0)
+            // 没有则添加，有则更新
+            if (iconBoxInfo.SnapPoints.Count == 0)
             {
                 for (int i = 0; i < 6; i++)
                 {
                     double angle = Math.PI / 3 * i + Math.PI / 6;
-                    double y = iconBox.IconBoxInfo.CenterY + (Config.HexagonRadius + 1) * Math.Cos(Math.PI / 6) * 2 * Math.Sin(angle);
-                    double x = iconBox.IconBoxInfo.CenterX + (Config.HexagonRadius + 1) * Math.Cos(Math.PI / 6) * 2 * Math.Cos(angle);
-                    iconBox.IconBoxInfo.SnapPoints.Add(new SnapPoint { Point = new System.Windows.Point(x, y) });
+                    double y = iconBoxInfo.CenterY + (Config.HexagonRadius + 1) * Math.Cos(Math.PI / 6) * 2 * Math.Sin(angle);
+                    double x = iconBoxInfo.CenterX + (Config.HexagonRadius + 1) * Math.Cos(Math.PI / 6) * 2 * Math.Cos(angle);
+                    iconBoxInfo.SnapPoints.Add(new SnapPoint { Point = new System.Windows.Point(x, y) });
                 }
             }
             else
@@ -169,33 +171,92 @@ namespace WPFDeskManager
                 for (int i = 0; i < 6; i++)
                 {
                     double angle = Math.PI / 3 * i + Math.PI / 6;
-                    double y = iconBox.IconBoxInfo.CenterY + (Config.HexagonRadius + 1) * Math.Cos(Math.PI / 6) * 2 * Math.Sin(angle);
-                    double x = iconBox.IconBoxInfo.CenterX + (Config.HexagonRadius + 1) * Math.Cos(Math.PI / 6) * 2 * Math.Cos(angle);
-                    iconBox.IconBoxInfo.SnapPoints[i].Point = new System.Windows.Point(x, y);
+                    double y = iconBoxInfo.CenterY + (Config.HexagonRadius + 1) * Math.Cos(Math.PI / 6) * 2 * Math.Sin(angle);
+                    double x = iconBoxInfo.CenterX + (Config.HexagonRadius + 1) * Math.Cos(Math.PI / 6) * 2 * Math.Cos(angle);
+                    iconBoxInfo.SnapPoints[i].Point = new System.Windows.Point(x, y);
                 }
             }
+        }
 
-            // 更新自身关于父节点的吸附关系
-            if (!iconBox.IconBoxInfo.IsRoot && iconBox.IconBoxInfo?.Parent?.Self != null)
+        /// <summary>
+        /// 获取拖入文件应该存在的位置
+        /// </summary>
+        /// <param name="iconBoxInfo">图标信息</param>
+        /// <returns>生成位置</returns>
+        public static SnapPoint? GetDropLoc(IconBoxInfo iconBoxInfo)
+        {
+            if (iconBoxInfo == null)
             {
-                foreach (SnapPoint snap in iconBox.IconBoxInfo.Parent.SnapPoints)
-                {
-                    if (snap.IconBoxInfo == iconBox.IconBoxInfo)
-                    {
-                        int index = iconBox.IconBoxInfo.Parent.SnapPoints.IndexOf(snap);
-                        if (index > 2)
-                        {
-                            index -= 3;
-                        }
-                        else
-                        {
-                            index += 3;
-                        }
+                return null;
+            }
 
-                        iconBox.IconBoxInfo.SnapPoints[index].IconBoxInfo = snap.IconBoxInfo;
-                        break;
-                    }
+
+            foreach (SnapPoint snap in iconBoxInfo.SnapPoints)
+            {
+                if (snap.IsSnapped)
+                {
+                    continue;
                 }
+
+                return snap;
+            }
+
+            foreach (SnapPoint snap in iconBoxInfo.SnapPoints)
+            {
+                if (snap.IconBoxInfo == null)
+                {
+                    continue;
+                }
+
+                return GetDropLoc(snap.IconBoxInfo);
+            }
+
+            return null;
+        }
+
+        /// <summary>
+        /// 更新与目标的吸附关系
+        /// </summary>
+        /// <param name="target">目标</param>
+        /// <param name="self">自身</param>
+        public static void UpdateIconSnapMap(IconBoxInfo target, IconBoxInfo self)
+        {
+            foreach (SnapPoint snap in target.SnapPoints)
+            {
+                if (snap.IsSnapped)
+                {
+                    continue;
+                }
+
+                double distance = Math.Sqrt(Math.Pow(self.CenterX - snap.Point.X, 2) +
+                                            Math.Pow(self.CenterY - snap.Point.Y, 2));
+
+                if (distance > (Config.HexagonRadius / 2))
+                {
+                    continue;
+                }
+
+                snap.IsSnapped = true;
+                snap.IconBoxInfo = self;
+
+                int index = target.SnapPoints.IndexOf(snap);
+                if (index > 2)
+                {
+                    index -= 3;
+                }
+                else
+                {
+                    index += 3;
+                }
+
+                if (self.SnapPoints[index].IsSnapped)
+                {
+                    Debug.WriteLine("更新吸附点的时候有异常情况！");
+                }
+                self.SnapPoints[index].IsSnapped = true;
+                self.SnapPoints[index].IconBoxInfo = target;
+
+                break;
             }
         }
 

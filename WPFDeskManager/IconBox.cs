@@ -110,7 +110,7 @@ namespace WPFDeskManager
             Canvas.SetLeft(this.IconBoxInfo.IconImage, this.IconBoxInfo.CenterX - this.IconBoxInfo.IconImage.Width / 2);
             this.MainWindow.MainPanel.Children.Add(this.IconBoxInfo.IconImage);
 
-            Common.CreateHexagonSnap(this);
+            Common.CreateHexagonSnap(this.IconBoxInfo);
             this.CreateContextMenu();
         }
 
@@ -121,7 +121,7 @@ namespace WPFDeskManager
         /// <param name="locOld">鼠标之前的位置</param>
         public void Update(Point locNow, Point locOld)
         {
-            Common.ChangeIconBoxLoc(this, locNow, locOld);
+            Common.ChangeIconBoxLoc(this.IconBoxInfo, locNow, locOld);
 
             foreach (IconBoxInfo child in this.IconBoxInfo.Children)
             {
@@ -129,7 +129,7 @@ namespace WPFDeskManager
                 {
                     continue;
                 }
-                Common.ChangeIconBoxLoc(child.Self, locNow, locOld);
+                Common.ChangeIconBoxLoc(child.Self.IconBoxInfo, locNow, locOld);
             }
         }
 
@@ -146,8 +146,8 @@ namespace WPFDeskManager
                 this.IconBoxInfo.CenterX = locNow.X;
             }
 
-            Common.ChangeIconBoxLoc(this, locNow, locOld);
-            Common.CreateHexagonSnap(this);
+            Common.ChangeIconBoxLoc(this.IconBoxInfo, locNow, locOld);
+            Common.CreateHexagonSnap(this.IconBoxInfo);
 
             foreach (IconBoxInfo child in this.IconBoxInfo.Children)
             {
@@ -155,8 +155,8 @@ namespace WPFDeskManager
                 {
                     continue;
                 }
-                Common.ChangeIconBoxLoc(child.Self, locNow, locOld);
-                Common.CreateHexagonSnap(child.Self);
+                Common.ChangeIconBoxLoc(child.Self.IconBoxInfo, locNow, locOld);
+                Common.CreateHexagonSnap(child.Self.IconBoxInfo);
             }
         }
 
@@ -247,27 +247,35 @@ namespace WPFDeskManager
 
             foreach (string file in files)
             {
-                foreach (SnapPoint snap in this.IconBoxInfo.SnapPoints)
+                SnapPoint? snap = Common.GetDropLoc(this.IconBoxInfo);
+                if (snap == null)
                 {
-                    // 拖入一个新图标的时候添加默认的吸附关系
-                    if (!snap.IsSnapped)
-                    {
-                        IconBoxInfo iconBoxInfo = new IconBoxInfo
-                        {
-                            CenterY = snap.Point.Y,
-                            CenterX = snap.Point.X,
-                            IconType = 2,
-                            TargetPath = file,
-                            Parent = this.IconBoxInfo,
-                        };
-                        this.IconBoxInfo.Children.Add(iconBoxInfo);
+                    continue;
+                }
 
-                        snap.IsSnapped = true;
-                        snap.IconBoxInfo = iconBoxInfo;
+                IconBoxInfo iconBoxInfo = new IconBoxInfo
+                {
+                    CenterY = snap.Point.Y,
+                    CenterX = snap.Point.X,
+                    IconType = 2,
+                    TargetPath = file,
+                    Parent = this.IconBoxInfo,
+                };
+                CreateIconBox(this.MainWindow, this.MouseLeftButtonDown, iconBoxInfo);
 
-                        CreateIconBox(this.MainWindow, this.MouseLeftButtonDown, iconBoxInfo);
-                        break;
-                    }
+                if (this.IconBoxInfo.IsRoot)
+                {
+                    this.IconBoxInfo.Children.Add(iconBoxInfo);
+                    Common.UpdateIconSnapMap(this.IconBoxInfo, iconBoxInfo);
+                }
+                else
+                {
+                    this.IconBoxInfo.Parent?.Children.Add(iconBoxInfo);
+                }
+
+                foreach (IconBoxInfo target in iconBoxInfo.Parent.Children)
+                {
+                    Common.UpdateIconSnapMap(target, iconBoxInfo);
                 }
             }
         }

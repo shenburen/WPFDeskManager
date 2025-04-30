@@ -62,6 +62,11 @@ namespace WPFDeskManager
         public IconBoxInfo? Parent;
 
         /// <summary>
+        /// 兄弟节点
+        /// </summary>
+        public List<IconBoxInfo> Brothers = new List<IconBoxInfo>();
+
+        /// <summary>
         /// 子节点
         /// </summary>
         public List<IconBoxInfo> Children = new List<IconBoxInfo>();
