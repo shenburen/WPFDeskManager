@@ -8,12 +8,12 @@ namespace WPFDeskManager
 {
     internal class IconSerialization
     {
-        public double CenterX;
-        public double CenterY;
-        public int IconType;
-        public string? SvgName;
-        public string? TargetPath;
-        public string? ImageBase64;
+        public double CenterX { get; set; }
+        public double CenterY { get; set; }
+        public int IconType { get; set; }
+        public string? SvgName { get; set; }
+        public string? TargetPath { get; set; }
+        public string? ImageBase64 { get; set; }
 
         [JsonIgnore]
         public ImageSource? image
@@ -44,8 +44,8 @@ namespace WPFDeskManager
             }
         }
 
-        public List<SnapSerialization> SnapPoints = new List<SnapSerialization>();
-        public List<IconSerialization> Children = new List<IconSerialization>();
+        public List<SnapSerialization> SnapPoints { get; set; } = new();
+        public List<IconSerialization> Children { get; set; } = new();
     }
 
     internal class SnapSerialization
@@ -55,6 +55,6 @@ namespace WPFDeskManager
         public Point Point { get; set; } = new Point();
 
         [JsonIgnore]
-        public IconSerialization? IconBoxInfo;
+        public IconSerialization? IconBoxInfo { get; set; }
     }
 }
