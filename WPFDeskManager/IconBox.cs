@@ -140,13 +140,29 @@ namespace WPFDeskManager
         /// <param name="locOld">鼠标之前的位置</param>
         public void Updated(Point locNow, Point locOld)
         {
-            if (!this.IconBoxInfo.IsRoot && this.IconBoxInfo.Parent == null && IconBoxHelper.SnapToIconBox(this, out locNow))
+            double distance = Math.Sqrt(Math.Pow(locNow.X - locOld.X, 2) + Math.Pow(locNow.Y - locOld.Y, 2));
+
+            // 移动距离过大的时候，把图标的吸附关系清空，防止误触
+            if (distance > Config.OffMapDistance)
             {
-                this.IconBoxInfo.CenterY = locNow.Y;
-                this.IconBoxInfo.CenterX = locNow.X;
+                if (!this.IconBoxInfo.IsRoot && this.IconBoxInfo.Parent != null)
+                {
+                    IconBoxHelper.ClearIconSnapMap(this.IconBoxInfo);
+                }
+
+                // 判断是否具备吸附关系
+                if (!this.IconBoxInfo.IsRoot)
+                {
+                    // TOTO: 有问题，等会改。
+                    IconBoxHelper.SnapToIconBox(this, out locNow);
+                }
+            }
+            else
+            {
+                locNow = locOld;
             }
 
-            IconBoxHelper.ChangeIconBoxLoc(this.IconBoxInfo, locNow, locOld);
+            IconBoxHelper.ChangeIconBoxLoc(this.IconBoxInfo, locNow, locOld, true);
             IconBoxHelper.CreateHexagonSnap(this.IconBoxInfo);
 
             foreach (IconBoxInfo child in this.IconBoxInfo.Children)
@@ -155,7 +171,7 @@ namespace WPFDeskManager
                 {
                     continue;
                 }
-                IconBoxHelper.ChangeIconBoxLoc(child.Self.IconBoxInfo, locNow, locOld);
+                IconBoxHelper.ChangeIconBoxLoc(child.Self.IconBoxInfo, locNow, locOld, true);
                 IconBoxHelper.CreateHexagonSnap(child.Self.IconBoxInfo);
             }
         }
@@ -344,12 +360,6 @@ namespace WPFDeskManager
         /// <param name="e"></param>
         private void Path_MouseLeftButtonDown(object sender, MouseButtonEventArgs e)
         {
-            // 鼠标压下一个图标的时候，需要把图标和其父节点的吸附关系清空
-            if (!this.IconBoxInfo.IsRoot && this.IconBoxInfo.Parent != null)
-            {
-                IconBoxHelper.ClearIconSnapMap(this.IconBoxInfo);
-            }
-
             Point point = e.GetPosition(this.MainWindow);
             this.MouseLeftButtonDown.Invoke(this, point);
         }

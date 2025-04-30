@@ -132,20 +132,26 @@ namespace WPFDeskManager
         /// <param name="iconBoxInfo">图标信息</param>
         /// <param name="locNow">新位置</param>
         /// <param name="locOld">旧位置</param>
-        public static void ChangeIconBoxLoc(IconBoxInfo iconBoxInfo, System.Windows.Point locNow, System.Windows.Point locOld)
+        public static void ChangeIconBoxLoc(IconBoxInfo iconBoxInfo, System.Windows.Point locNow, System.Windows.Point locOld, bool updateCenter = false)
         {
             double offsetY = iconBoxInfo.CenterY - locOld.Y;
             double offsetX = iconBoxInfo.CenterX - locOld.X;
 
-            iconBoxInfo.CenterY = locNow.Y + offsetY;
-            iconBoxInfo.CenterX = locNow.X + offsetX;
+            double newPosY = locNow.Y + offsetY;
+            double newPosX = locNow.X + offsetX;
 
-            Canvas.SetTop(iconBoxInfo.Hexagon, iconBoxInfo.CenterY);
-            Canvas.SetLeft(iconBoxInfo.Hexagon, iconBoxInfo.CenterX);
+            Canvas.SetTop(iconBoxInfo.Hexagon, newPosY);
+            Canvas.SetLeft(iconBoxInfo.Hexagon, newPosX);
             if (iconBoxInfo.IconImage != null)
             {
-                Canvas.SetTop(iconBoxInfo.IconImage, iconBoxInfo.CenterY - iconBoxInfo.IconImage.Height / 2);
-                Canvas.SetLeft(iconBoxInfo.IconImage, iconBoxInfo.CenterX - iconBoxInfo.IconImage.Width / 2);
+                Canvas.SetTop(iconBoxInfo.IconImage, newPosY - iconBoxInfo.IconImage.Height / 2);
+                Canvas.SetLeft(iconBoxInfo.IconImage, newPosX - iconBoxInfo.IconImage.Width / 2);
+            }
+
+            if (updateCenter)
+            {
+                iconBoxInfo.CenterY = newPosY;
+                iconBoxInfo.CenterX = newPosX;
             }
         }
 
@@ -285,6 +291,7 @@ namespace WPFDeskManager
                             {
                                 tar.IsSnapped = false;
                                 tar.IconBoxInfo = null;
+                                break;
                             }
                         }
                     }
@@ -295,6 +302,7 @@ namespace WPFDeskManager
             }
 
             self.Parent?.Children.Remove(self);
+            self.Parent = null;
         }
 
         /// <summary>

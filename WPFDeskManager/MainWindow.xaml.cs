@@ -104,7 +104,6 @@ namespace WPFDeskManager
             }
 
             this.CurrentPath.Update(loc, this.CurrentLoc);
-            this.CurrentLoc = loc;
         }
 
         /// <summary>
