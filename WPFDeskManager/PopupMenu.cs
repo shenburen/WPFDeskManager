@@ -10,7 +10,7 @@ namespace WPFDeskManager
         /// <summary>
         /// 菜单
         /// </summary>
-        public ContextMenu Menu;
+        public ContextMenu Menu { get; set; }
 
         /// <summary>
         /// 构造函数

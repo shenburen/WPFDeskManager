@@ -13,12 +13,12 @@
         /// <summary>
         /// 主窗口
         /// </summary>
-        public static MainWindow? MainWindow = null;
+        public static MainWindow? MainWindow { get; set; } = null;
 
         /// <summary>
         /// 图标列表
         /// </summary>
-        public static Dictionary<int, IconBoxInfo> IconBoxInfos = new Dictionary<int, IconBoxInfo>();
+        public static Dictionary<int, IconBoxInfo> IconBoxInfos { get; set; } = new Dictionary<int, IconBoxInfo>();
 
         /// <summary>
         /// 全局初始化

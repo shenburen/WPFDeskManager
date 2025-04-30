@@ -1,4 +1,5 @@
-﻿using System.Runtime.InteropServices;
+﻿using System.Diagnostics;
+using System.Runtime.InteropServices;
 using System.Windows;
 using System.Windows.Input;
 using System.Windows.Interop;
@@ -35,7 +36,7 @@ namespace WPFDeskManager
 
             if (!RegisterHotKey(hwnd, ACTIVE_MAIN_WINDOW, MOD_CONTROL, (uint)KeyInterop.VirtualKeyFromKey(Key.Space)))
             {
-                // 快捷键注册失败，后续我想在注册失败的时候发出通知，现在暂不做处理。
+                Debug.WriteLine("注册快捷键失败！");
             }
         }
 

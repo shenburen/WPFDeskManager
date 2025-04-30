@@ -12,12 +12,12 @@ namespace WPFDeskManager
         /// <summary>
         /// 当前鼠标位置
         /// </summary>
-        private Point CurrentLoc = new Point();
+        private Point CurrentLoc { get; set; } = new Point();
 
         /// <summary>
         /// 当前选择的图标
         /// </summary>
-        private IconBox? CurrentPath;
+        private IconBox? CurrentPath { get; set; }
 
         #region Win32 API
         private const int GWL_EXSTYLE = -20;

@@ -14,27 +14,27 @@ namespace WPFDeskManager
         /// <summary>
         /// 上次点击时间
         /// </summary>
-        private DateTime LastClickTime;
+        private DateTime LastClickTime { get; set; }
 
         /// <summary>
         /// 菜单
         /// </summary>
-        private PopupMenu Popup = new PopupMenu();
+        private PopupMenu Popup { get; set; } = new PopupMenu();
 
         /// <summary>
         /// 主窗体
         /// </summary>
-        private MainWindow MainWindow;
+        private MainWindow MainWindow { get; set; }
 
         /// <summary>
         /// 鼠标压下事件
         /// </summary>
-        private Action<IconBox, Point> MouseLeftButtonDown;
+        private Action<IconBox, Point> MouseLeftButtonDown { get; set; }
 
         /// <summary>
         /// 图标配置
         /// </summary>
-        public IconBoxInfo IconBoxInfo;
+        public IconBoxInfo IconBoxInfo { get; set; }
 
         /// <summary>
         /// 创建图标框

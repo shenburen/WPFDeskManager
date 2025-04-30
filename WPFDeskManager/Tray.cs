@@ -10,12 +10,12 @@ namespace WPFDeskManager
         /// <summary>
         /// 托盘图标
         /// </summary>
-        public static TaskbarIcon? TrayIcon;
+        public static TaskbarIcon? TrayIcon { get; set; }
 
         /// <summary>
         /// 弹出菜单
         /// </summary>
-        private static PopupMenu? Popup;
+        private static PopupMenu? Popup { get; set; }
 
         #region Win32 API
         private const uint WM_COMMAND = 0x0111;
