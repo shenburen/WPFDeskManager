@@ -190,28 +190,35 @@ namespace WPFDeskManager
                 return null;
             }
 
-
-            foreach (SnapPoint snap in iconBoxInfo.SnapPoints)
+            SnapPoint? resSnap = null;
+            List<SnapPoint> save = iconBoxInfo.SnapPoints;
+            Func<List<SnapPoint>, bool> func = (List<SnapPoint> list) =>
             {
-                if (snap.IsSnapped)
+                save = new List<SnapPoint>();
+                foreach (SnapPoint snap in list)
                 {
-                    continue;
+                    if (snap.IsSnapped && snap.IconBoxInfo != null)
+                    {
+                        save.AddRange(snap.IconBoxInfo.SnapPoints);
+                        continue;
+                    }
+
+                    resSnap = snap;
+                    return true;
                 }
 
-                return snap;
-            }
+                return false;
+            };
 
-            foreach (SnapPoint snap in iconBoxInfo.SnapPoints)
+            while (true)
             {
-                if (snap.IconBoxInfo == null)
+                if (func(save))
                 {
-                    continue;
+                    break;
                 }
-
-                return GetDropLoc(snap.IconBoxInfo);
             }
 
-            return null;
+            return resSnap;
         }
 
         /// <summary>
