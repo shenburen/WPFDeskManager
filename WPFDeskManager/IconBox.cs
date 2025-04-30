@@ -67,7 +67,7 @@ namespace WPFDeskManager
             // 六边形
             this.IconBoxInfo.Hexagon = new Path
             {
-                Data = Common.CreateHexagonGeo(),
+                Data = IconBoxHelper.CreateHexagonGeo(),
                 Fill = new SolidColorBrush(Color.FromArgb(180, 0, 0, 0)),
                 Effect = new DropShadowEffect
                 {
@@ -98,11 +98,11 @@ namespace WPFDeskManager
             };
             if (this.IconBoxInfo.IconType == 1 && this.IconBoxInfo.SvgName != null) // SVG图标
             {
-                this.IconBoxInfo.IconImage.Source = Common.GetSvgFromResources(this.IconBoxInfo.SvgName);
+                this.IconBoxInfo.IconImage.Source = IconBoxHelper.GetSvgFromResources(this.IconBoxInfo.SvgName);
             }
             else if (this.IconBoxInfo.IconType == 2 && this.IconBoxInfo.TargetPath != null) // 文件图标
             {
-                Common.GetIconFromFiles(this.IconBoxInfo.TargetPath, out string? targetPath, out BitmapSource? image);
+                IconBoxHelper.GetIconFromFiles(this.IconBoxInfo.TargetPath, out string? targetPath, out BitmapSource? image);
                 this.IconBoxInfo.TargetPath = targetPath;
                 this.IconBoxInfo.IconImage.Source = image;
             }
@@ -110,7 +110,7 @@ namespace WPFDeskManager
             Canvas.SetLeft(this.IconBoxInfo.IconImage, this.IconBoxInfo.CenterX - this.IconBoxInfo.IconImage.Width / 2);
             this.MainWindow.MainPanel.Children.Add(this.IconBoxInfo.IconImage);
 
-            Common.CreateHexagonSnap(this.IconBoxInfo);
+            IconBoxHelper.CreateHexagonSnap(this.IconBoxInfo);
             this.CreateContextMenu();
         }
 
@@ -121,7 +121,7 @@ namespace WPFDeskManager
         /// <param name="locOld">鼠标之前的位置</param>
         public void Update(Point locNow, Point locOld)
         {
-            Common.ChangeIconBoxLoc(this.IconBoxInfo, locNow, locOld);
+            IconBoxHelper.ChangeIconBoxLoc(this.IconBoxInfo, locNow, locOld);
 
             foreach (IconBoxInfo child in this.IconBoxInfo.Children)
             {
@@ -129,7 +129,7 @@ namespace WPFDeskManager
                 {
                     continue;
                 }
-                Common.ChangeIconBoxLoc(child.Self.IconBoxInfo, locNow, locOld);
+                IconBoxHelper.ChangeIconBoxLoc(child.Self.IconBoxInfo, locNow, locOld);
             }
         }
 
@@ -140,14 +140,14 @@ namespace WPFDeskManager
         /// <param name="locOld">鼠标之前的位置</param>
         public void Updated(Point locNow, Point locOld)
         {
-            if (!this.IconBoxInfo.IsRoot && this.IconBoxInfo.Parent == null && Common.SnapToIconBox(this, out locNow))
+            if (!this.IconBoxInfo.IsRoot && this.IconBoxInfo.Parent == null && IconBoxHelper.SnapToIconBox(this, out locNow))
             {
                 this.IconBoxInfo.CenterY = locNow.Y;
                 this.IconBoxInfo.CenterX = locNow.X;
             }
 
-            Common.ChangeIconBoxLoc(this.IconBoxInfo, locNow, locOld);
-            Common.CreateHexagonSnap(this.IconBoxInfo);
+            IconBoxHelper.ChangeIconBoxLoc(this.IconBoxInfo, locNow, locOld);
+            IconBoxHelper.CreateHexagonSnap(this.IconBoxInfo);
 
             foreach (IconBoxInfo child in this.IconBoxInfo.Children)
             {
@@ -155,8 +155,8 @@ namespace WPFDeskManager
                 {
                     continue;
                 }
-                Common.ChangeIconBoxLoc(child.Self.IconBoxInfo, locNow, locOld);
-                Common.CreateHexagonSnap(child.Self.IconBoxInfo);
+                IconBoxHelper.ChangeIconBoxLoc(child.Self.IconBoxInfo, locNow, locOld);
+                IconBoxHelper.CreateHexagonSnap(child.Self.IconBoxInfo);
             }
         }
 
@@ -228,7 +228,7 @@ namespace WPFDeskManager
             this.IconBoxInfo.SvgName = "pack://application:,,,/Assets/icon-" + menuItem?.Header + ".svg";
             if (this.IconBoxInfo.IconImage != null)
             {
-                this.IconBoxInfo.IconImage.Source = Common.GetSvgFromResources("pack://application:,,,/Assets/icon-" + menuItem?.Header + ".svg");
+                this.IconBoxInfo.IconImage.Source = IconBoxHelper.GetSvgFromResources("pack://application:,,,/Assets/icon-" + menuItem?.Header + ".svg");
             }
         }
 
@@ -247,7 +247,7 @@ namespace WPFDeskManager
 
             foreach (string file in files)
             {
-                SnapPoint? snap = Common.GetDropLoc(this.IconBoxInfo);
+                SnapPoint? snap = IconBoxHelper.GetDropLoc(this.IconBoxInfo);
                 if (snap == null)
                 {
                     continue;
@@ -266,7 +266,7 @@ namespace WPFDeskManager
                 if (this.IconBoxInfo.IsRoot)
                 {
                     this.IconBoxInfo.Children.Add(iconBoxInfo);
-                    Common.UpdateIconSnapMap(this.IconBoxInfo, iconBoxInfo);
+                    IconBoxHelper.UpdateIconSnapMap(this.IconBoxInfo, iconBoxInfo);
                 }
                 else
                 {
@@ -275,7 +275,7 @@ namespace WPFDeskManager
 
                 foreach (IconBoxInfo target in iconBoxInfo.Parent.Children)
                 {
-                    Common.UpdateIconSnapMap(target, iconBoxInfo);
+                    IconBoxHelper.UpdateIconSnapMap(target, iconBoxInfo);
                 }
             }
         }
@@ -291,8 +291,8 @@ namespace WPFDeskManager
             {
                 return;
             }
-            Common.AnimateStrokeColor(this.IconBoxInfo.Hexagon, Colors.Cyan);
-            Common.AnimateShadowOpacity(this.IconBoxInfo.Hexagon, Colors.Cyan, 0.7, 15);
+            IconBoxHelper.AnimateStrokeColor(this.IconBoxInfo.Hexagon, Colors.Cyan);
+            IconBoxHelper.AnimateShadowOpacity(this.IconBoxInfo.Hexagon, Colors.Cyan, 0.7, 15);
         }
 
         /// <summary>
@@ -306,8 +306,8 @@ namespace WPFDeskManager
             {
                 return;
             }
-            Common.AnimateStrokeColor(this.IconBoxInfo.Hexagon, Color.FromRgb(68, 68, 68));
-            Common.AnimateShadowOpacity(this.IconBoxInfo.Hexagon, Color.FromRgb(0, 150, 200), 0.4, 8);
+            IconBoxHelper.AnimateStrokeColor(this.IconBoxInfo.Hexagon, Color.FromRgb(68, 68, 68));
+            IconBoxHelper.AnimateShadowOpacity(this.IconBoxInfo.Hexagon, Color.FromRgb(0, 150, 200), 0.4, 8);
         }
 
         /// <summary>

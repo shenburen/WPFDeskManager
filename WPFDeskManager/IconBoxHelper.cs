@@ -15,7 +15,7 @@ using System.Diagnostics;
 
 namespace WPFDeskManager
 {
-    internal class Common
+    internal class IconBoxHelper
     {
         /// <summary>
         /// 创建六边形的几何图形
