@@ -8,44 +8,67 @@ namespace WPFDeskManager
 {
     internal class Serialization
     {
+        public DateTime LastSaveTime { get; set; } = DateTime.Now;
+
+        public List<IconSerialization> Icons { get; set; } = new();
+    }
+
+    internal class IconSerialization
+    {
+        public int id { get; set; }
+
         public double CenterX { get; set; }
+
         public double CenterY { get; set; }
+
         public int IconType { get; set; }
+
         public string? SvgName { get; set; }
+
         public string? TargetPath { get; set; }
-        public string? ImageBase64 { get; set; }
+
+        public bool IsRoot { get; set; }
 
         [JsonIgnore]
-        public ImageSource? image
+        public ImageSource? Image
         {
             get
             {
-                if (string.IsNullOrEmpty(ImageBase64)) return null;
-                byte[] bytes = Convert.FromBase64String(ImageBase64);
-                using var ms = new MemoryStream(bytes);
-                var img = new BitmapImage();
-                img.BeginInit();
-                img.CacheOption = BitmapCacheOption.OnLoad;
-                img.StreamSource = ms;
-                img.EndInit();
-                img.Freeze();
-                return img;
+                if (string.IsNullOrEmpty(ImageBase64))
+                {
+                    return null;
+                }
+
+                using MemoryStream memStream = new MemoryStream(Convert.FromBase64String(this.ImageBase64));
+                BitmapImage bitmap = new BitmapImage();
+
+                bitmap.BeginInit();
+                bitmap.CacheOption = BitmapCacheOption.OnLoad;
+                bitmap.StreamSource = memStream;
+                bitmap.EndInit();
+
+                return bitmap;
             }
             set
             {
                 if (value is BitmapSource bmp)
                 {
-                    var encoder = new PngBitmapEncoder();
+                    using MemoryStream memStream = new MemoryStream();
+
+                    PngBitmapEncoder encoder = new PngBitmapEncoder();
                     encoder.Frames.Add(BitmapFrame.Create(bmp));
-                    using var ms = new MemoryStream();
-                    encoder.Save(ms);
-                    ImageBase64 = Convert.ToBase64String(ms.ToArray());
+                    encoder.Save(memStream);
+
+                    ImageBase64 = Convert.ToBase64String(memStream.ToArray());
                 }
             }
         }
 
+        public string? ImageBase64 { get; set; }
+
         public List<SnapSerialization> SnapPoints { get; set; } = new();
-        public List<Serialization> Children { get; set; } = new();
+
+        public List<IconSerialization> Children { get; set; } = new();
     }
 
     internal class SnapSerialization
@@ -54,7 +77,6 @@ namespace WPFDeskManager
 
         public Point Point { get; set; } = new Point();
 
-        [JsonIgnore]
-        public Serialization? IconBoxInfo { get; set; }
+        public int id { get; set; }
     }
 }

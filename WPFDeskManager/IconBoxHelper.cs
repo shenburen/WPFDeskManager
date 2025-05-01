@@ -58,7 +58,7 @@ namespace WPFDeskManager
             {
                 StreamResourceInfo streamInfo = Application.GetResourceStream(new Uri(path));
 
-                System.IO.MemoryStream memStream = new System.IO.MemoryStream();
+                using System.IO.MemoryStream memStream = new System.IO.MemoryStream();
                 StreamSvgConverter converter = new StreamSvgConverter(new WpfDrawingSettings());
                 converter.Convert(streamInfo.Stream, memStream);
 
