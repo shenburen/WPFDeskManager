@@ -7,6 +7,9 @@ namespace WPFDeskManager
     /// </summary>
     public partial class Setting : Window
     {
+        /// <summary>
+        /// 构造函数
+        /// </summary>
         public Setting()
         {
             InitializeComponent();

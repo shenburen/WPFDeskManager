@@ -100,12 +100,16 @@ namespace WPFDeskManager
             {
                 this.IconBoxInfo.IconImage.Source = IconBoxHelper.GetSvgFromResources(this.IconBoxInfo.SvgName);
             }
-            else if (this.IconBoxInfo.IconType == 2 && this.IconBoxInfo.TargetPath != null) // 文件图标
+            else if (this.IconBoxInfo.IconType == 2 && this.IconBoxInfo.TargetPath != null && this.IconBoxInfo.IconName == null) // 文件图标
             {
                 IconBoxHelper.GetIconFromFiles(this.IconBoxInfo.TargetPath, out string? iconName, out string? targetPath, out BitmapSource? image);
                 this.IconBoxInfo.IconName = iconName;
                 this.IconBoxInfo.TargetPath = targetPath;
                 this.IconBoxInfo.IconImage.Source = image;
+            }
+            else if (this.IconBoxInfo.IconType == 2 && this.IconBoxInfo.IconName != null)
+            {
+                this.IconBoxInfo.IconImage.Source = SerializerHelper.ImageFromCache(this.IconBoxInfo.IconName);
             }
             Canvas.SetTop(this.IconBoxInfo.IconImage, this.IconBoxInfo.CenterY - this.IconBoxInfo.IconImage.Height / 2);
             Canvas.SetLeft(this.IconBoxInfo.IconImage, this.IconBoxInfo.CenterX - this.IconBoxInfo.IconImage.Width / 2);

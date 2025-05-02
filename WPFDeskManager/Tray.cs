@@ -47,7 +47,6 @@ namespace WPFDeskManager
 
             Popup = new PopupMenu();
             Popup.AddMenuItem("切换桌面", SwitchDesktopEvent);
-            Popup.AddMenuItem("保存当前", SaveNowIcon);
             Popup.AddMenuItem("设置", OpenSetting);
             Popup.AddMenuItem("退出", ExitApplication);
             TrayIcon.ContextMenu = Popup.Menu;
@@ -77,23 +76,6 @@ namespace WPFDeskManager
             }
 
             SendMessage(shellViewWin, WM_COMMAND, TOGGLE_SHOW_DESKTOP_ICONS, IntPtr.Zero);
-        }
-
-        /// <summary>
-        /// 保存桌面图标当前状态
-        /// </summary>
-        /// <param name="sender"></param>
-        /// <param name="e"></param>
-        private static void SaveNowIcon(object sender, RoutedEventArgs e)
-        {
-            if (SerializerHelper.SaveToFile())
-            {
-                Debug.WriteLine("保存成功！");
-            }
-            else
-            {
-                Debug.WriteLine("保存失败，发生了不可预估的错误！");
-            }
         }
 
         /// <summary>

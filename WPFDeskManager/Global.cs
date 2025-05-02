@@ -4,7 +4,6 @@ using System.Diagnostics;
 namespace WPFDeskManager
 {
     // 待办事项：
-    //   本地持久化
     //   系统通知：这个问题还挺棘手，需要指定一个windows版本，并且因为引用的SDK过大，所以暂时先搁置。
     //   设置界面
     //   悬停提示

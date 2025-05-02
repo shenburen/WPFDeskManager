@@ -71,21 +71,9 @@ namespace WPFDeskManager
         protected override void OnContentRendered(EventArgs e)
         {
             base.OnContentRendered(e);
-            MouseEvent.SetHook(ActionMouseMove, ActionMouseLeftUp);
+            this.LoadIconInfo();
+            MouseEvent.SetHook(ActionMouseMove, ActionMouseLeftUp); ;
 
-            Serialization? serialization = this.LoadIconInfo();
-            if (serialization == null)
-            {
-                IconBoxInfo iconBoxInfo = new IconBoxInfo
-                {
-                    CenterY = this.Height / 2,
-                    CenterX = this.Width / 2,
-                    IconType = 1,
-                    SvgName = "pack://application:,,,/Assets/icon-金牛座.svg",
-                    IsRoot = true,
-                };
-                IconBox.CreateIconBox(this, this.ActionMouseLeftDown, iconBoxInfo);
-            }
         }
 
         /// <summary>
@@ -139,25 +127,57 @@ namespace WPFDeskManager
             this.CurrentLoc = point;
         }
 
+        /// <summary>
+        /// 保存图标信息
+        /// </summary>
         private void SaveIconInfo()
         {
-            Dictionary<int, IconBoxInfo> infos = new Dictionary<int, IconBoxInfo>(Global.IconBoxInfos);
-            Serialization serialization = new Serialization();
-
-            Dictionary<int, IconBoxInfo> list = infos.Where(info => info.Value.IsRoot).ToDictionary(info => info.Key, info => info.Value);
-            foreach (var item in list)
+            Func<IconBoxInfo, IconSerialization> save = (item) =>
             {
-                IconSerialization icon = new IconSerialization
+                return new IconSerialization
                 {
-                    CenterX = item.Value.CenterX,
-                    CenterY = item.Value.CenterY,
-                    IconType = item.Value.IconType,
-                    SvgName = item.Value.SvgName,
-                    TargetPath = item.Value.TargetPath,
-                    IsRoot = item.Value.IsRoot,
-                    Image = item.Value.IconImage?.Source,
+                    CenterX = item.CenterX,
+                    CenterY = item.CenterY,
+                    IconType = item.IconType,
+                    SvgName = item.SvgName,
+                    TargetPath = item.TargetPath,
+                    IsRoot = item.IsRoot,
+                    IconName = item.IconName,
                 };
-                serialization.Icons.Add(icon);
+            };
+
+            Dictionary<int, IconBoxInfo> list = Global.IconBoxInfos;
+            Dictionary<int, IconBoxInfo> roots = list.Where(info => info.Value.IsRoot).ToDictionary(info => info.Key, info => info.Value);
+
+            Serialization serialization = new Serialization();
+            foreach (var root in roots)
+            {
+                IconSerialization p = save(root.Value);
+                serialization.Icons.Add(p);
+                if (root.Value.Hexagon != null)
+                {
+                    list.Remove(root.Value.Hexagon.GetHashCode());
+                }
+
+                foreach (IconBoxInfo child in root.Value.Children)
+                {
+                    IconSerialization s = save(child);
+                    p.Children.Add(s);
+                    if (child.Hexagon != null)
+                    {
+                        list.Remove(child.Hexagon.GetHashCode());
+                    }
+                }
+            }
+
+            foreach (var single in list)
+            {
+                IconSerialization p = save(single.Value);
+                serialization.Icons.Add(p);
+                if (single.Value.Hexagon != null)
+                {
+                    list.Remove(single.Value.Hexagon.GetHashCode());
+                }
             }
 
             JsonSerializerOptions options = new JsonSerializerOptions
@@ -171,16 +191,81 @@ namespace WPFDeskManager
             SerializerHelper.SaveIconToFile(json);
         }
 
-        private Serialization LoadIconInfo()
+        /// <summary>
+        /// 加载图标信息
+        /// </summary>
+        private void LoadIconInfo()
         {
+            Action createDefault = () =>
+            {
+                IconBoxInfo iconBoxInfo = new IconBoxInfo
+                {
+                    CenterY = this.Height / 2,
+                    CenterX = this.Width / 2,
+                    IconType = 1,
+                    SvgName = "pack://application:,,,/Assets/icon-金牛座.svg",
+                    IsRoot = true,
+                };
+                IconBox.CreateIconBox(this, this.ActionMouseLeftDown, iconBoxInfo);
+            };
+
             string? json = SerializerHelper.LoadIconFromFile();
+
+            if (json == null)
+            {
+                createDefault();
+                return;
+            }
 
             JsonSerializerOptions options = new JsonSerializerOptions
             {
                 ReferenceHandler = ReferenceHandler.IgnoreCycles,
             };
+            Serialization? serialization = JsonSerializer.Deserialize<Serialization>(json, options);
 
-            return JsonSerializer.Deserialize<Serialization>(json, options);
+            if (serialization == null)
+            {
+                createDefault();
+                return;
+            }
+
+            foreach (IconSerialization root in serialization.Icons)
+            {
+                IconBoxInfo rootInfo = new IconBoxInfo
+                {
+                    CenterX = root.CenterX,
+                    CenterY = root.CenterY,
+                    IconType = root.IconType,
+                    TargetPath = root.TargetPath,
+                    IconName = root.IconName,
+                    SvgName = root.SvgName,
+                    IsRoot = root.IsRoot,
+                };
+                IconBox.CreateIconBox(this, this.ActionMouseLeftDown, rootInfo);
+
+                foreach (IconSerialization child in root.Children)
+                {
+                    IconBoxInfo childInfo = new IconBoxInfo
+                    {
+                        CenterX = child.CenterX,
+                        CenterY = child.CenterY,
+                        IconType = child.IconType,
+                        TargetPath = child.TargetPath,
+                        IconName = child.IconName,
+                        IsRoot = child.IsRoot,
+                    };
+                    IconBox.CreateIconBox(this, this.ActionMouseLeftDown, childInfo);
+
+                    childInfo.Parent = rootInfo;
+                    rootInfo.Children.Add(childInfo);
+
+                    IconBoxHelper.UpdateIconSnapMap(rootInfo, childInfo);
+                    foreach (IconBoxInfo target in rootInfo.Children)
+                    {
+                        IconBoxHelper.UpdateIconSnapMap(target, childInfo);
+                    }
+                }
+            }
         }
     }
 }
