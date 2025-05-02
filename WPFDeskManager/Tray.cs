@@ -48,6 +48,7 @@ namespace WPFDeskManager
             Popup = new PopupMenu();
             Popup.AddMenuItem("切换桌面", SwitchDesktopEvent);
             Popup.AddMenuItem("保存当前", SaveNowIcon);
+            Popup.AddMenuItem("设置", OpenSetting);
             Popup.AddMenuItem("退出", ExitApplication);
             TrayIcon.ContextMenu = Popup.Menu;
         }
@@ -93,6 +94,17 @@ namespace WPFDeskManager
             {
                 Debug.WriteLine("保存失败，发生了不可预估的错误！");
             }
+        }
+
+        /// <summary>
+        /// 打开设置窗口
+        /// </summary>
+        /// <param name="sender"></param>
+        /// <param name="e"></param>
+        private static void OpenSetting(object sender, RoutedEventArgs e)
+        {
+            Global.Setting = new Setting();
+            Global.Setting.Show();
         }
 
         /// <summary>
