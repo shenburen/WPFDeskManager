@@ -254,6 +254,10 @@ namespace WPFDeskManager
                 else if (!this.IconBoxInfo.IsRoot)
                 {
                     IconBoxHelper.ClearIconSnapMap(this.IconBoxInfo);
+                    if (this.IconBoxInfo.IconName != null)
+                    {
+                        SerializerHelper.DeleteCache(this.IconBoxInfo.IconName);
+                    }
                     remove();
                 }
             });

@@ -1,10 +1,4 @@
-﻿using System.IO;
-using System.Text.Json.Serialization;
-using System.Windows;
-using System.Windows.Media;
-using System.Windows.Media.Imaging;
-
-namespace WPFDeskManager
+﻿namespace WPFDeskManager
 {
     internal class Serialization
     {

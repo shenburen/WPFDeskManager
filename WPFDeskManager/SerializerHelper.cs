@@ -1,9 +1,5 @@
-﻿using System.Text.Json.Serialization;
-using System.Text.Json;
-using System.IO;
+﻿using System.IO;
 using System.Windows.Media.Imaging;
-using System.Buffers.Text;
-using System.Xml.Linq;
 
 namespace WPFDeskManager
 {
@@ -70,6 +66,20 @@ namespace WPFDeskManager
             bitmap.EndInit();
 
             return bitmap;
+        }
+
+        /// <summary>
+        /// 删除缓存文件
+        /// </summary>
+        /// <param name="name">文件名字</param>
+        public static void DeleteCache(string name)
+        {
+            string path = "cache/" + name;
+
+            if (File.Exists(path))
+            {
+                File.Delete(path);
+            }
         }
 
         /// <summary>
