@@ -71,6 +71,11 @@ namespace WPFDeskManager
         /// 子节点
         /// </summary>
         public List<IconBoxInfo> Children { get; set; } = new();
+
+        /// <summary>
+        /// 是否展开
+        /// </summary>
+        public bool IsExpanded { get; set; } = true;
     }
 
     /// <summary>

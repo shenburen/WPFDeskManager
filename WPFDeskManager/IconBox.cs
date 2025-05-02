@@ -79,6 +79,7 @@ namespace WPFDeskManager
                 Stroke = new SolidColorBrush(Color.FromRgb(68, 68, 68)),
                 StrokeThickness = 2,
                 AllowDrop = true,
+                RenderTransform = new TranslateTransform(0, 0),
             };
             Canvas.SetTop(this.IconBoxInfo.Hexagon, this.IconBoxInfo.CenterY);
             Canvas.SetLeft(this.IconBoxInfo.Hexagon, this.IconBoxInfo.CenterX);
@@ -95,6 +96,7 @@ namespace WPFDeskManager
                 Width = Config.IconSize,
                 Height = Config.IconSize,
                 IsHitTestVisible = false,
+                RenderTransform = new TranslateTransform(0, 0),
             };
             if (this.IconBoxInfo.IconType == 1 && this.IconBoxInfo.SvgName != null) // SVG图标
             {
@@ -295,6 +297,11 @@ namespace WPFDeskManager
         /// <param name="e"></param>
         private void Path_Drop(object sender, DragEventArgs e)
         {
+            if (!this.IconBoxInfo.IsExpanded)
+            {
+                return;
+            }
+
             string[] files = (string[])e.Data.GetData(DataFormats.FileDrop);
             if (files == null)
             {
@@ -380,39 +387,13 @@ namespace WPFDeskManager
             DateTime now = DateTime.Now;
             if ((now - this.LastClickTime).TotalMilliseconds <= Config.DoubleClickTime)
             {
-                ProcessStartInfo? psi = null;
-                if (System.IO.Directory.Exists(this.IconBoxInfo.TargetPath))
+                if (this.IconBoxInfo.IsRoot)
                 {
-                    psi = new ProcessStartInfo
-                    {
-                        FileName = "explorer.exe",
-                        Arguments = this.IconBoxInfo.TargetPath,
-                        UseShellExecute = true,
-                    };
-                }
-                else if (System.IO.File.Exists(this.IconBoxInfo.TargetPath))
-                {
-                    psi = new ProcessStartInfo
-                    {
-                        FileName = this.IconBoxInfo.TargetPath,
-                        UseShellExecute = true,
-                    };
+                    IconBoxHelper.AnimateExpandRoot(this.IconBoxInfo);
                 }
                 else
                 {
-                    Debug.WriteLine("路径不存在！");
-                }
-
-                try
-                {
-                    if (psi != null)
-                    {
-                        Process.Start(psi);
-                    }
-                }
-                catch (Exception err)
-                {
-                    Debug.WriteLine(err.Message);
+                    IconBoxHelper.OpenFile(this.IconBoxInfo);
                 }
             }
             this.LastClickTime = now;

@@ -96,7 +96,7 @@ namespace WPFDeskManager
             {
                 From = from,
                 To = to,
-                Duration = TimeSpan.FromMilliseconds(200),
+                Duration = TimeSpan.FromMilliseconds(100),
             };
             fade.Completed += (object? sender, EventArgs e) =>
             {

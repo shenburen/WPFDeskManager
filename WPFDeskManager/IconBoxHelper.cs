@@ -336,6 +336,10 @@ namespace WPFDeskManager
 
             foreach (var item in Global.IconBoxInfos)
             {
+                if (!item.Value.IsExpanded)
+                {
+                    continue;
+                }
                 if (item.Value == iconBoxInfo)
                 {
                     continue;
@@ -394,6 +398,115 @@ namespace WPFDeskManager
             }
 
             return false;
+        }
+
+        /// <summary>
+        /// 打开文件
+        /// </summary>
+        /// <param name="iconBoxInfo">图标</param>
+        public static void OpenFile(IconBoxInfo iconBoxInfo)
+        {
+            ProcessStartInfo? psi = null;
+            if (System.IO.Directory.Exists(iconBoxInfo.TargetPath))
+            {
+                psi = new ProcessStartInfo
+                {
+                    FileName = "explorer.exe",
+                    Arguments = iconBoxInfo.TargetPath,
+                    UseShellExecute = true,
+                };
+            }
+            else if (System.IO.File.Exists(iconBoxInfo.TargetPath))
+            {
+                psi = new ProcessStartInfo
+                {
+                    FileName = iconBoxInfo.TargetPath,
+                    UseShellExecute = true,
+                };
+            }
+            else
+            {
+                Debug.WriteLine("路径不存在！");
+            }
+
+            try
+            {
+                if (psi != null)
+                {
+                    Process.Start(psi);
+                }
+            }
+            catch (Exception err)
+            {
+                Debug.WriteLine(err.Message);
+            }
+        }
+
+        /// <summary>
+        /// 根节点展开收起动画
+        /// </summary>
+        /// <param name="iconBoxInfo">图标</param>
+        public static void AnimateExpandRoot(IconBoxInfo iconBoxInfo)
+        {
+            if (iconBoxInfo.Children.Count == 0)
+            {
+                return;
+            }
+
+            bool isExpanded = iconBoxInfo.IsExpanded;
+            iconBoxInfo.IsExpanded = !isExpanded;
+
+            ColorAnimation animC = new ColorAnimation
+            {
+                To = isExpanded ? System.Windows.Media.Color.FromArgb(255, 0, 0, 0) : System.Windows.Media.Color.FromArgb(180, 0, 0, 0),
+                Duration = TimeSpan.FromMilliseconds(200),
+            };
+            iconBoxInfo.Hexagon?.Fill.BeginAnimation(System.Windows.Media.SolidColorBrush.ColorProperty, animC);
+
+            foreach (IconBoxInfo item in iconBoxInfo.Children)
+            {
+                item.IsExpanded = !isExpanded;
+
+                if (!isExpanded && item.Hexagon != null && item.IconImage != null)
+                {
+                    item.Hexagon.Visibility = Visibility.Visible;
+                    item.IconImage.Visibility = Visibility.Visible;
+                }
+
+                DoubleAnimation animX = new DoubleAnimation
+                {
+                    To = isExpanded ? iconBoxInfo.CenterX - item.CenterX : 0,
+                    Duration = TimeSpan.FromMilliseconds(200),
+                    EasingFunction = new SineEase { EasingMode = EasingMode.EaseIn }
+                };
+                DoubleAnimation animY = new DoubleAnimation
+                {
+                    To = isExpanded ? iconBoxInfo.CenterY - item.CenterY : 0,
+                    Duration = TimeSpan.FromMilliseconds(200),
+                    EasingFunction = new SineEase { EasingMode = EasingMode.EaseIn }
+                };
+                DoubleAnimation animO = new DoubleAnimation
+                {
+                    To = isExpanded ? 0 : 1,
+                    Duration = TimeSpan.FromMilliseconds(200),
+                    EasingFunction = new SineEase { EasingMode = EasingMode.EaseIn }
+                };
+                animO.Completed += (s, e) =>
+                {
+                    if (isExpanded && item.Hexagon != null && item.IconImage != null)
+                    {
+                        item.Hexagon.Visibility = Visibility.Collapsed;
+                        item.IconImage.Visibility = Visibility.Collapsed;
+                    }
+                };
+
+                item.Hexagon?.RenderTransform.BeginAnimation(TranslateTransform.XProperty, animX);
+                item.Hexagon?.RenderTransform.BeginAnimation(TranslateTransform.YProperty, animY);
+                item.Hexagon?.BeginAnimation(Path.OpacityProperty, animO);
+                item.IconImage?.RenderTransform.BeginAnimation(TranslateTransform.XProperty, animX);
+                item.IconImage?.RenderTransform.BeginAnimation(TranslateTransform.YProperty, animY);
+                item.IconImage?.BeginAnimation(System.Windows.Controls.Image.OpacityProperty, animO);
+            }
         }
 
         /// <summary>

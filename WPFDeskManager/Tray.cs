@@ -47,7 +47,7 @@ namespace WPFDeskManager
 
             Popup = new PopupMenu();
             Popup.AddMenuItem("切换桌面", SwitchDesktopEvent);
-            Popup.AddMenuItem("设置", OpenSetting);
+            // Popup.AddMenuItem("设置", OpenSetting);
             Popup.AddMenuItem("退出", ExitApplication);
             TrayIcon.ContextMenu = Popup.Menu;
         }
