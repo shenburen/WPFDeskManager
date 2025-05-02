@@ -4,11 +4,11 @@ using System.Diagnostics;
 namespace WPFDeskManager
 {
     // 待办事项：
-    //   系统通知：这个问题还挺棘手，需要指定一个windows版本，并且因为引用的SDK过大，所以暂时先搁置。
-    //   设置界面
     //   悬停提示
-    //   根节点点击隐藏所有图标
     //   解链
+    //   系统通知：这个问题还挺棘手，需要指定一个windows版本，并且因为引用的SDK过大，所以暂时先搁置。
+    //   根节点点击隐藏所有图标
+    //   设置界面
     internal class Global
     {
         /// <summary>
@@ -42,7 +42,7 @@ namespace WPFDeskManager
             Tray.CreateTray();
             ShortcutKey.CreateShortcutKey();
 
-            SetStartup(false);
+            SetStartup(true);
         }
 
         /// <summary>
