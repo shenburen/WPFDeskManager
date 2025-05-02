@@ -28,6 +28,11 @@ namespace WPFDeskManager
         public string? SvgName { get; set; }
 
         /// <summary>
+        /// 图标名称
+        /// </summary>
+        public string? IconName { get; set; }
+
+        /// <summary>
         /// 实际指向的路径
         /// </summary>
         public string? TargetPath { get; set; }

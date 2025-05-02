@@ -102,7 +102,8 @@ namespace WPFDeskManager
             }
             else if (this.IconBoxInfo.IconType == 2 && this.IconBoxInfo.TargetPath != null) // 文件图标
             {
-                IconBoxHelper.GetIconFromFiles(this.IconBoxInfo.TargetPath, out string? targetPath, out BitmapSource? image);
+                IconBoxHelper.GetIconFromFiles(this.IconBoxInfo.TargetPath, out string? iconName, out string? targetPath, out BitmapSource? image);
+                this.IconBoxInfo.IconName = iconName;
                 this.IconBoxInfo.TargetPath = targetPath;
                 this.IconBoxInfo.IconImage.Source = image;
             }

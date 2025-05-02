@@ -1,4 +1,6 @@
 ﻿using System.Runtime.InteropServices;
+using System.Text.Json.Serialization;
+using System.Text.Json;
 using System.Windows;
 using System.Windows.Interop;
 
@@ -71,15 +73,19 @@ namespace WPFDeskManager
             base.OnContentRendered(e);
             MouseEvent.SetHook(ActionMouseMove, ActionMouseLeftUp);
 
-            IconBoxInfo iconBoxInfo = new IconBoxInfo
+            Serialization? serialization = this.LoadIconInfo();
+            if (serialization == null)
             {
-                CenterY = this.Height / 2,
-                CenterX = this.Width / 2,
-                IconType = 1,
-                SvgName = "pack://application:,,,/Assets/icon-金牛座.svg",
-                IsRoot = true,
-            };
-            IconBox.CreateIconBox(this, this.ActionMouseLeftDown, iconBoxInfo);
+                IconBoxInfo iconBoxInfo = new IconBoxInfo
+                {
+                    CenterY = this.Height / 2,
+                    CenterX = this.Width / 2,
+                    IconType = 1,
+                    SvgName = "pack://application:,,,/Assets/icon-金牛座.svg",
+                    IsRoot = true,
+                };
+                IconBox.CreateIconBox(this, this.ActionMouseLeftDown, iconBoxInfo);
+            }
         }
 
         /// <summary>
@@ -88,6 +94,7 @@ namespace WPFDeskManager
         /// <param name="e"></param>
         protected override void OnClosed(EventArgs e)
         {
+            this.SaveIconInfo();
             MouseEvent.Unhook();
             base.OnClosed(e);
         }
@@ -130,6 +137,50 @@ namespace WPFDeskManager
         {
             this.CurrentPath = iconBox;
             this.CurrentLoc = point;
+        }
+
+        private void SaveIconInfo()
+        {
+            Dictionary<int, IconBoxInfo> infos = new Dictionary<int, IconBoxInfo>(Global.IconBoxInfos);
+            Serialization serialization = new Serialization();
+
+            Dictionary<int, IconBoxInfo> list = infos.Where(info => info.Value.IsRoot).ToDictionary(info => info.Key, info => info.Value);
+            foreach (var item in list)
+            {
+                IconSerialization icon = new IconSerialization
+                {
+                    CenterX = item.Value.CenterX,
+                    CenterY = item.Value.CenterY,
+                    IconType = item.Value.IconType,
+                    SvgName = item.Value.SvgName,
+                    TargetPath = item.Value.TargetPath,
+                    IsRoot = item.Value.IsRoot,
+                    Image = item.Value.IconImage?.Source,
+                };
+                serialization.Icons.Add(icon);
+            }
+
+            JsonSerializerOptions options = new JsonSerializerOptions
+            {
+                WriteIndented = true,
+                ReferenceHandler = ReferenceHandler.IgnoreCycles,
+            };
+
+            string json = JsonSerializer.Serialize(serialization, options);
+
+            SerializerHelper.SaveIconToFile(json);
+        }
+
+        private Serialization LoadIconInfo()
+        {
+            string? json = SerializerHelper.LoadIconFromFile();
+
+            JsonSerializerOptions options = new JsonSerializerOptions
+            {
+                ReferenceHandler = ReferenceHandler.IgnoreCycles,
+            };
+
+            return JsonSerializer.Deserialize<Serialization>(json, options);
         }
     }
 }

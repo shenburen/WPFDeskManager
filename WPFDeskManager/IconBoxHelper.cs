@@ -82,8 +82,9 @@ namespace WPFDeskManager
         /// <param name="targetPath">目标实际应用的路径</param>
         /// <param name="iconImage">获取的图标</param>
         /// <returns>执行是否成功</returns>
-        public static bool GetIconFromFiles(string path, out string? targetPath, out BitmapSource? iconImage)
+        public static bool GetIconFromFiles(string path, out string? iconName, out string? targetPath, out BitmapSource? iconImage)
         {
+            iconName = null;
             targetPath = null;
             iconImage = null;
 
@@ -124,6 +125,7 @@ namespace WPFDeskManager
                     }
 
                     iconImage = Imaging.CreateBitmapSourceFromHIcon(icon.Handle, Int32Rect.Empty, BitmapSizeOptions.FromWidthAndHeight(icon.Width, icon.Height));
+                    iconName = SerializerHelper.ImageToCache(iconImage);
                 }
 
                 return true;
