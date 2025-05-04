@@ -1,4 +1,5 @@
 ﻿using System.IO;
+using System.Reflection;
 using System.Windows.Media.Imaging;
 
 namespace WPFDeskManager
@@ -11,7 +12,7 @@ namespace WPFDeskManager
         /// <param name="json">图标信息JSON</param>
         public static void SaveIconToFile(string json)
         {
-            File.WriteAllText("cache/save.json", json);
+            File.WriteAllText(GetAbsolutePath("cache/save.json"), json);
         }
 
         /// <summary>
@@ -20,7 +21,7 @@ namespace WPFDeskManager
         /// <returns>图标信息JSON</returns>
         public static string? LoadIconFromFile()
         {
-            return ReadFile("cache/save.json");
+            return ReadFile(GetAbsolutePath("cache/save.json"));
         }
 
         /// <summary>
@@ -39,7 +40,7 @@ namespace WPFDeskManager
             string uuid = Guid.NewGuid().ToString();
             string base64 = Convert.ToBase64String(memStream.ToArray());
 
-            WriteFile("cache/" + uuid, base64);
+            WriteFile(GetAbsolutePath("cache/" + uuid), base64);
 
             return uuid;
         }
@@ -51,7 +52,7 @@ namespace WPFDeskManager
         /// <returns>BitmapImage</returns>
         public static BitmapImage? ImageFromCache(string name)
         {
-            string? base64 = ReadFile("cache/" + name);
+            string? base64 = ReadFile(GetAbsolutePath("cache/" + name));
             if (base64 == null)
             {
                 return null;
@@ -74,7 +75,7 @@ namespace WPFDeskManager
         /// <param name="name">文件名字</param>
         public static void DeleteCache(string name)
         {
-            string path = "cache/" + name;
+            string path = GetAbsolutePath("cache/" + name);
 
             if (File.Exists(path))
             {
@@ -112,6 +113,22 @@ namespace WPFDeskManager
             }
 
             return File.ReadAllText(path);
+        }
+
+        /// <summary>
+        /// 获取绝对路径
+        /// </summary>
+        /// <param name="path">相对路径</param>
+        /// <returns>绝对路径</returns>
+        private static string GetAbsolutePath(string path)
+        {
+            string? exeDir = Path.GetDirectoryName(Assembly.GetExecutingAssembly().Location);
+            if (exeDir == null)
+            {
+                return path;
+            }
+
+            return Path.Combine(exeDir, path);
         }
     }
 }
